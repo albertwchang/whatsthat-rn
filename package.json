@@ -1,0 +1,18 @@
+{
+  "name": "whatsthat",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node_modules/react-native/packager/packager.sh"
+  },
+  "dependencies": {
+		"react-native": "^0.5.0",
+		"react-native-camera": "^0.2.9",
+		"react-native-carousel": "^0.3.3",
+		"react-native-popover": "^0.1.1",
+		"react-native-vector-icons": "^0.6.1",
+		"rn-drawer": "^1.1.0",
+		"firebase": "^2.2.6",
+                "reflux": "^0.2.7"
+  }
+}

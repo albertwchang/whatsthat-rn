@@ -35,17 +35,12 @@ var NavItem = React.createClass({
 		return this.state.navItemReady;
 	},
 
-	_changeScene() {
-		debugger;
-		this.props.navigator.replace(this.props.params)
-	},
-
 	render() {
 		return (
 			<View>
-        <TouchableHighlight onPress={this._changeScene.bind(this)}
+        <TouchableHighlight onPress={this.props.changeScene}
         										underlayColor="transparent">
-          {this.state.component}
+          <Text>{this.state.component}</Text>
         </TouchableHighlight>
       </View>
 		)

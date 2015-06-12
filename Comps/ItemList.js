@@ -1,25 +1,24 @@
-'use strict';
+'use strict'
 
-
-var React = require("react-native");
-var Reflux = require("reflux");
-var HostStore = require("../Stores/HostStore");
-var HostActions = require("../Actions/HostActions");
+// React Native Parts
+var React = require('react-native');
 var Carousel = require('react-native-carousel');
 var Icons = require("react-native-vector-icons");
-var _ = require("lodash");
-var MapScene = require("./MapScene");
-var NavBar = require("react-native-navbar");
-var NavItem = require("./NavItem");
+var Reflux = require("reflux");
 var TimerMixin = require('react-timer-mixin');
 
+// Personal Components
+var HostStore = require("../Stores/HostStore");
+var HostActions = require("../Actions/HostActions");
+
+// Utilities
+var _ = require("lodash");
+
 var {
-	Component,
 	Image,
  	ListView,
  	Navigator,
 	StyleSheet,
-	TabBarIOS,
 	TouchableHighlight,
 	Text,
 	View,
@@ -30,16 +29,10 @@ var styles = StyleSheet.create({
 	  fontSize: 16,
 	  color: '#656565'
 	},
-	container: {
-		flex: 1,
-	},
 	itemName: {
 		fontSize: 18,
 		fontWeight: 'bold',
 		color: '#48BBEC'
-	},
-	navBar: {
-		backgroundColor: "#A4A4A4"
 	},
 	rowContainer: {
 	  flexDirection: 'row',
@@ -60,95 +53,6 @@ var styles = StyleSheet.create({
 	},
 });
 
-class MainScene extends Component {
-	construtor(props) {
-		super(props);
-	}
-
-	componentWillMount() {
-		this.state = {
-			userObtained: true,
-			leftButton: null,
-			rightButton: null,
-		}
-	}
-
-	shouldComponentUpdate(nextProps, nextState) {
-		return this.state.userObtained;
-	}
-
-	_renderScene(route, navigator) {
-		var ItemComp = route.component;
-		var navBar = route.navigationBar;
-
-		if (navBar) {
-		 	navBar = React.addons.cloneWithProps(navBar, {
-		  	navigator: navigator,
-		  	route: route
-		 	});
-		}
-
-		return (
-			<View>
-		   	{navBar}
-		   	<ItemComp navigator={navigator} route={route} {...this.props.route.passProps} />
-			</View>
-		);
-	}
-
-	_changeScene(navigator) {
-		debugger;
-	}
-
-	render() {
-		var leftRoute = {
-			component: MapScene,
-			passProps: {
-				mapParams: {
-					annotations: [
-						{
-							latitude: 36.9735510,
-							longitude: -121.9830190,
-							title: "Parent's Home",
-							subtitle: "Where I grew up..."
-						}, {
-							latitude: 36.9750338,
-							longitude: -121.9820749,
-							title: "Live Oak School",
-							subtitle: "where it all began, school-wise"
-						}
-					],
-					region: {
-						latitude: 36.9741853,
-						longitude: -121.9825684,
-						latitudeDelta: 0,
-						longitudeDelta: 0
-					}
-				}
-			}
-		};
-
-		var navItem = <NavItem type="text"
-														name="Map"
-														method="replace"
-														params={leftRoute} />;
-
-		var navBar =
-			<NavBar title="All Items"
-							backgroundColor="#A4A4A4"
-							buttonsColor="#FFFFFF"
-							titleColor="#FFFFFF"
-							customPrev={navItem} />
-		return (
-			<Navigator renderScene={this._renderScene.bind(this)}
-								initialRoute={{
-								  component: ItemList,
-								  navigationBar: navBar,
-								}} />
-		)
-	}
-}
-
 var ItemList = React.createClass({
 	mixins: [TimerMixin, Reflux.connect(HostStore, "imgHostURL")],
 	getInitialState: function() {
@@ -163,7 +67,7 @@ var ItemList = React.createClass({
 	componentWillMount: function() {
 		// get Host Image URL
 		HostActions.setImgHostURL(["whatsthat","items","avatar"]);
-		
+
 		// Get one time dump of data of items and related users
 		var query = "";
 		var authorIds = null;
@@ -257,4 +161,4 @@ var ItemList = React.createClass({
 	},
 })
 
-module.exports = MainScene;
+module.exports = ItemList;

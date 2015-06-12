@@ -21,7 +21,7 @@ var HostStore = Reflux.createStore({
 		}
 	},
 
-	getInitialState(){
+	getInitialState: function(){
 		return {
 			imgHostURL: this.imgHostURL
 		};
@@ -31,7 +31,7 @@ var HostStore = Reflux.createStore({
 		this.imgHostURL = this.hosts.image.url;
 	},
 
-	onSetImgHostURL(args) {
+	onSetImgHostURL: function(args) {
 		// args is an array
 		var urlParams = "";
 		_.each(args, (arg) => {
@@ -42,7 +42,7 @@ var HostStore = Reflux.createStore({
 		this.trigger(this.imgHostURL);
 	},
 
-	onGetS3Policy() {
+	onGetS3Policy: function() {
 		console.log("Getting S3 policy");
 
 		var fetchParams = {

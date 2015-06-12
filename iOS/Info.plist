@@ -23,7 +23,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Can we use your local geolocation data?</string>
 	<key>NSMainNibFile</key>
 	<string>LaunchScreen</string>
 	<key>UILaunchStoryboardName</key>

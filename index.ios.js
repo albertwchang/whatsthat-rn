@@ -1,6 +1,6 @@
 'use strict';
 
-var AuthScene = require("./Comps/AuthScene");
+var AuthScene = require("./Scenes/AuthScene");
 var Icons = require("react-native-vector-icons");
 var React = require('react-native');
 

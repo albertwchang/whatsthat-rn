@@ -5,11 +5,16 @@
 
 'use strict';
 
+// REACT NATIVE PARTS
 var React = require("react-native");
-var Firebase = require("firebase");
 var Icons = require("react-native-vector-icons");
-var LoginScene = require("../Comps/LoginScene");
-var MainScene = require("../Comps/MainScene");
+
+// 3RD PARTY SYSETMS
+var Firebase = require("firebase");
+
+// PERSONAL COMPONENTS
+var LoginScene = require("../Scenes/LoginScene");
+var MainScene = require("../Scenes/MainScene");
 // var TestScene = require("../Comps/TestScene");
 
 var {
@@ -36,12 +41,8 @@ var styles = StyleSheet.create({
   },
 });
 
-class AuthScene extends Component {
-	construtor(props) {
-		super(props);
-	}
-
-	componentWillMount() {
+var AuthScene = React.createClass({
+	componentWillMount: function() {
 		this.state = {
 			backend: "shit",
 			isLoggedIn: false
@@ -69,15 +70,15 @@ class AuthScene extends Component {
 
 			this.props.navigator.replace(route);
 		}
-	}
+	},
 
-	shouldCompnentUpdate(nextProps, nextState) {
+	shouldComponentUpdate: function(nextProps, nextState) {
 		return !nextState.isLoggedIn;
-	}
+	},
 
-	render() {
+	render: function() {
 		return <LoginScene backend={this.state.backend} />;
-	}
-}
+	},
+});
 
 module.exports = AuthScene;

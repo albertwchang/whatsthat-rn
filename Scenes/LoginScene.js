@@ -2,7 +2,7 @@
 
 var React = require("react-native");
 var Icons = require("react-native-vector-icons");
-var MainScene = require("../Comps/MainScene");
+var MainScene = require("./MainScene");
 
 var {
 	Component,
@@ -35,21 +35,17 @@ var styles = StyleSheet.create({
 	}
 });
 
-class LoginScene extends Component {
-	construtor(props) {
-		super(props);
-	}
-
-	componentWillMount() {
+var LoginScene = React.createClass({
+	componentWillMount: function() {
 		this.state = {
 			creds: {
 				email: "",
 				password: "",
 			}
 		}
-	}
+	},
 
-	_processLogin(event) {
+	_processLogin: function(event) {
 		this.props.backend.authWithPassword(this.state.creds, (err, authData) => {
 			if (authData) {
 				console.log("authenticated");
@@ -71,27 +67,27 @@ class LoginScene extends Component {
 				console.log("Error logging in...");
 			}
 		})
-	}
+	},
 
-	_updateEmail(e) {
+	_updateEmail: function(e) {
 		this.setState({
 			creds: {
 				email: e.nativeEvent.text,
 				password: this.state.creds.password
 			}
 		});
-	}
+	},
 
-	_updatepassword(e) {
+	_updatepassword: function(e) {
 		this.setState({
 			creds: {
 				email: this.state.creds.email,
 				password: e.nativeEvent.text,
 			}
 		});
-	}
+	},
 
-	render() {
+	render: function() {
 		return (
 			<View style={styles.container}>
 				<TextInput onChange={this._updateEmail.bind(this)} style={styles.input} />
@@ -102,6 +98,6 @@ class LoginScene extends Component {
 			</View>
 		);
 	}
-}
+})
 
 module.exports = LoginScene;

@@ -2,7 +2,7 @@
 
 var React = require("react-native");
 var Icons = require("react-native-vector-icons");
-var MainScene = require("./MainScene");
+var MainScene = require("../Comps/MainScene");
 
 var {
 	Component,
@@ -50,14 +50,21 @@ class LoginScene extends Component {
 	}
 
 	_processLogin(event) {
-		debugger;
-		this.props.backend.authWithPassword(this.state.creds, function(err, authData) {
+		this.props.backend.authWithPassword(this.state.creds, (err, authData) => {
 			if (authData) {
 				console.log("authenticated");
-				this.state.isLoggedIn = true;
 				var route = {
 					component: MainScene,
+					passProps: {
+						user: authData
+					}
 				}
+
+				this.setState({
+					isLoggedIn: true
+				});
+
+				debugger;
 
 				this.props.navigator.replace(route);
 			} else {

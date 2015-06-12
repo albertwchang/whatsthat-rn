@@ -1,10 +1,22 @@
 'use strict'
 
 var Reflux = require("reflux");
-var ItemAction = require("./ItemAction");
+var ItemActions = require("../Actions/ItemActions");
 
 var ItemStore = Reflux.createStore({
-	data:  [
+	listenables: [ItemActions],
+	onOne() {
+		console.log("One triggered");
+	},
+
+	onTwo() {
+		console.log("Two triggered");
+	},
+
+	onThree() {
+		console.log("Three triggered");
+	},
+	data: [
 		{
 			"authorId" : "1",
 			"created" : "2015-03-02T13:41:32-08:00",
@@ -75,14 +87,6 @@ var ItemStore = Reflux.createStore({
 			}
 		}
 	],
-
-	init() {
-		this.listenTo(ItemAction, this.onAction);
-	},
-
-	onAction() {
-		console.log(this.data);
-	}
 })
 
 module.exports = ItemStore;

@@ -8,8 +8,9 @@
 var React = require("react-native");
 var Firebase = require("firebase");
 var Icons = require("react-native-vector-icons");
-var LoginScene = require("./LoginScene");
-var MainScene = require("./MainScene");
+var LoginScene = require("../Comps/LoginScene");
+var MainScene = require("../Comps/MainScene");
+// var TestScene = require("../Comps/TestScene");
 
 var {
 	Component,
@@ -46,30 +47,20 @@ class AuthScene extends Component {
 			isLoggedIn: false
 		};
 
-		{ /* validate whether user is authenticated w/ Firebase
+		{ /* validate whether user is authenticated w/ Firebase */}
 		this.state = {
 			backend: new Firebase("https://whatsthat.firebaseIO.com"),
 			isLoggedIn: false
 		};
 
 		var authData = this.state.backend.getAuth();
-		*/}
 
-		this.state = {
-			backend: "shit",
-			isLoggedIn: false,
-		}
-
-		var authData = {
-			"$id": "3",
-			"email": "achang@whatsthat.com"
-		};
-		
 		if (authData) {
 			console.log("authenticated");
 			this.state.isLoggedIn = true;
 			var route = {
 				component: MainScene,
+				// component: TestScene,
 				passProps: {
 					user: authData,
 					backend: this.state.backend
@@ -81,7 +72,7 @@ class AuthScene extends Component {
 	}
 
 	shouldCompnentUpdate(nextProps, nextState) {
-		return !this.state.isLoggedIn;
+		return !nextState.isLoggedIn;
 	}
 
 	render() {

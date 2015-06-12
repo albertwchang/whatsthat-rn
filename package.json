@@ -13,6 +13,6 @@
 		"react-native-vector-icons": "^0.6.1",
 		"rn-drawer": "^1.1.0",
 		"firebase": "^2.2.6",
-                "reflux": "^0.2.7"
-  }
+		"reflux": "^0.2.7"
+  	}
 }

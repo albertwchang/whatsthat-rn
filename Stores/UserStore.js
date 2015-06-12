@@ -1,8 +1,7 @@
 'use strict'
 
 var Reflux = require("./reflux");
-
-
+var UserActions = require("../Actions/UserActions");
 
 class DataStore {
 	constructor(users, items) {

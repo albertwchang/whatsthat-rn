@@ -45,7 +45,7 @@ var MainScene = React.createClass({
 	mixins: [Reflux.connect(HostStore)],
 	getInitialState: function() {
 		return {
-			items: [],
+			items: null,
 			itemsObtained: false,
 			authorIds: [],
 			authors: [],
@@ -152,6 +152,8 @@ var MainScene = React.createClass({
 		   	{navBar}
 		   	<Scene navigator={navigator}
 		   				route={route}
+		   				authors={this.state.authors}
+		   				items={this.state.items}
 		   				{...this.props.route.passProps} />
 			</View>
 		);
@@ -181,10 +183,6 @@ var MainScene = React.createClass({
 								initialRoute={{
 								  component: this.state.scene,
 								  navigationBar: navBar,
-								  passProps: {
-								  	items: this.state.items,
-								  	authors: this.state.authors
-								  }
 								}} />
 			)
 	}

@@ -21,6 +21,7 @@ var UserActions = require("../Actions/UserActions");
 var _ = require("lodash");
 
 var {
+	ActivityIndicatorIOS,
 	Image,
  	ListView,
  	Navigator,
@@ -33,15 +34,18 @@ var {
 var styles = StyleSheet.create({
 	author: {
 	  fontSize: 16,
-	  color: '#656565'
-	},
-	cell: {
-		backgroundColor: "red"
+	  color: '#FFFFFF'
 	},
 	itemName: {
 		fontSize: 18,
 		fontWeight: 'bold',
-		color: '#48BBEC'
+		color: '#48BBEC',
+	},
+	loading: {
+		alignItems: "center",
+		color: "#FE2E2E",
+		height: 500,
+		justifyContent: "center"
 	},
 	rowContainer: {
 	  flexDirection: 'row',
@@ -57,18 +61,42 @@ var styles = StyleSheet.create({
 	},
 	thumb: {
 	  width: 80,
-	  height: 80,
-	  marginRight: 10
+	  height: 60,
+	  marginRight: 10,
 	},
 });
 
 var ItemList = React.createClass({
 	mixins: [TimerMixin, Reflux.connect(HostStore)],
+	getInitialState: function() {
+		return {
+			ds: null,
+			isLoading: true,
+			authors: null,
+			items: null,
+		}
+	},
 
 	componentWillMount: function() {
 		this.setState({
-			ds: new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid})
-		})
+			ds: new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid}),
+		});
+	},
+
+	componentWillReceiveProps: function(nextProps) {
+		var loadingStatus;
+
+		if (nextProps.items == null)
+			loadingStatus = true
+		else {
+			loadingStatus = false;
+		}
+
+		this.setState({
+			authors: nextProps.authors,
+			items: nextProps.items,
+			isLoading: loadingStatus,
+		});
 	},
 
 	_rowPressed: function(key, item) {
@@ -76,9 +104,8 @@ var ItemList = React.createClass({
 	},
 
 	_renderRow: function(item, sectionId, rowId) {
-		debugger;
 
-		var author = this.props.route.passProps.authors[item.authorId];
+		var author = this.props.authors[item.authorId];
 
 		return (
 			<TouchableHighlight
@@ -87,7 +114,7 @@ var ItemList = React.createClass({
 				
 				<View accessibilityOnTap={false}>
 					<View style={styles.rowContainer}>
-						{<Image style={styles.thumb} source={{ uri: author.imgURLs.avatar }} />}
+						{<Image style={styles.thumb} source={{ uri: item.imgURLs.avatar }} />}
 						<View style={styles.textContainer}>
 							<Text style={styles.itemName}>{item.name}</Text>
 							<Text style={styles.author}
@@ -99,31 +126,19 @@ var ItemList = React.createClass({
 				</View>
 			</TouchableHighlight>
 		);
-		
-		// return (
-		// 	<View style={styles.cell}>
-		// 		<Text>Testing...</Text>
-		// 		<View style={styles.separator} />
-		// 	</View>
-		// )
 	},
 
 	render: function() {
-		// var items = _.toArray(this.props.route.passProps.items);
-		var items = [
-			{id: 1, name: "albert"},
-			{id: 2, name: "jerry"},
-		];
-
-		console.log("going to render: ", items);
-		this.state.ds.cloneWithRows(items);
-		debugger;
-		return (
-			<ListView dataSource={this.state.ds}
-								style={styles.container}
-								renderRow={this._renderRow} />
-		)
-		// 	: <Text>No Data Yet</Text>;
+		var scene = this.state.isLoading
+			? <ActivityIndicatorIOS
+				animating={this.state.isLoading}
+				style={styles.loading}
+				size="large" />
+			: <ListView
+					dataSource={this.state.ds.cloneWithRows(this.props.items)}
+					style={styles.container}
+					renderRow={this._renderRow} />
+		return scene;
 	},
 })
 

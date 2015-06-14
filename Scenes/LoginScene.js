@@ -2,7 +2,9 @@
 
 var React = require("react-native");
 var Icons = require("react-native-vector-icons");
+var Reflux = require("reflux");
 var MainScene = require("./MainScene");
+var HostStore = require("../Stores/HostStore");
 
 var {
 	Component,
@@ -36,17 +38,20 @@ var styles = StyleSheet.create({
 });
 
 var LoginScene = React.createClass({
+	mixins: [Reflux.connect(HostStore)],
+	
 	componentWillMount: function() {
-		this.state = {
+		this.setState({
 			creds: {
 				email: "",
 				password: "",
 			}
-		}
+		})
 	},
 
 	_processLogin: function(event) {
-		this.props.backend.authWithPassword(this.state.creds, (err, authData) => {
+		debugger;
+		this.state.db.authWithPassword(this.state.creds, (err, authData) => {
 			if (authData) {
 				console.log("authenticated");
 				var route = {
@@ -59,8 +64,6 @@ var LoginScene = React.createClass({
 				this.setState({
 					isLoggedIn: true
 				});
-
-				debugger;
 
 				this.props.navigator.replace(route);
 			} else {

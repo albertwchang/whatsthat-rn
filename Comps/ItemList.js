@@ -8,8 +8,14 @@ var Reflux = require("reflux");
 var TimerMixin = require('react-timer-mixin');
 
 // Personal Components
+
+// STORES && ACTIONS
 var HostStore = require("../Stores/HostStore");
 var HostActions = require("../Actions/HostActions");
+var ItemStore = require("../Stores/ItemStore");
+var ItemActions = require("../Actions/ItemActions");
+var UserStore = require("../Stores/UserStore");
+var UserActions = require("../Actions/UserActions");
 
 // Utilities
 var _ = require("lodash");
@@ -28,6 +34,9 @@ var styles = StyleSheet.create({
 	author: {
 	  fontSize: 16,
 	  color: '#656565'
+	},
+	cell: {
+		backgroundColor: "red"
 	},
 	itemName: {
 		fontSize: 18,
@@ -54,81 +63,23 @@ var styles = StyleSheet.create({
 });
 
 var ItemList = React.createClass({
-	mixins: [TimerMixin, Reflux.connect(HostStore, "imgHostURL")],
-	getInitialState: function() {
-		return {
-			items: [],
-			itemsObtained: false,
-			authorIds: [],
-			authors: [],
-		};
-	},
+	mixins: [TimerMixin, Reflux.connect(HostStore)],
 
 	componentWillMount: function() {
-		// get Host Image URL
-		HostActions.setImgHostURL(["whatsthat","items","avatar"]);
-
-		// Get one time dump of data of items and related users
-		var query = "";
-		var authorIds = null;
-		var items = null;
-
-		// obtain ITEMS
-		var qItems = new Promise((resolve, reject) => {
-			this.props.backend.child("/items").once("value", (data) => {
-				resolve( items = data.val() );
-			}, (err) => {
-				reject(err);
-			});
-		});
-
-
-		// obtain AUTHORS
-		qItems.then((items) => {
-			authorIds = _.uniq( _.pluck(items, "authorId") );
-			
-			var qAuthors = new Promise((resolve, reject) => {
-				this.props.backend.child("/users").once("value", (data) => {
-					var authors = _.transform(data.val(), (result, author, key) => {
-						if ( _.contains(authorIds, key) )
-							result[key] = author;
-					})
-
-					resolve(authors);
-				}, (err) => {
-					reject(err);
-				});
-			});
-
-			return qAuthors;
-		}).finally((authors) => {
-			// finalize list view
-			var dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid});
-
-			this.setState({
-				items: dataSource.cloneWithRows(items),
-				itemsObtained: true,
-				authors: authors,
-				authorIds: authorIds,
-			});
-		}).catch((err) => {
-			console.log("Error: ", err);
+		this.setState({
+			ds: new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid})
 		})
-	},
-
-	shouldComponentUpdate: function(nextProps, nextState) {
-		return nextState.itemsObtained;
 	},
 
 	_rowPressed: function(key, item) {
 		console.log("testing");
 	},
 
-	renderRow: function(item, sectionId, rowId) {
-		var author = this.state.authors[item.authorId];
-		var imgURL = this.state.imgHostURL +item.filename;
-		
-		console.log(this.state.imgHostURL.imgHostURL);
+	_renderRow: function(item, sectionId, rowId) {
+		debugger;
+
+		var author = this.props.route.passProps.authors[item.authorId];
+
 		return (
 			<TouchableHighlight
 				underlayColor="#A4A4A4"
@@ -136,7 +87,7 @@ var ItemList = React.createClass({
 				
 				<View accessibilityOnTap={false}>
 					<View style={styles.rowContainer}>
-						{<Image style={styles.thumb} source={{ uri: imgURL }} />}
+						{<Image style={styles.thumb} source={{ uri: author.imgURLs.avatar }} />}
 						<View style={styles.textContainer}>
 							<Text style={styles.itemName}>{item.name}</Text>
 							<Text style={styles.author}
@@ -147,17 +98,32 @@ var ItemList = React.createClass({
 					<View style={styles.separator} />
 				</View>
 			</TouchableHighlight>
-		)
+		);
+		
+		// return (
+		// 	<View style={styles.cell}>
+		// 		<Text>Testing...</Text>
+		// 		<View style={styles.separator} />
+		// 	</View>
+		// )
 	},
 
 	render: function() {
-		var content = this.state.itemsObtained
-			? <ListView dataSource={this.state.items}
-									style={styles.container}
-									renderRow={this.renderRow.bind(this)} />
-			: <Text>No Data Yet</Text>;
+		// var items = _.toArray(this.props.route.passProps.items);
+		var items = [
+			{id: 1, name: "albert"},
+			{id: 2, name: "jerry"},
+		];
 
-		return (content);
+		console.log("going to render: ", items);
+		this.state.ds.cloneWithRows(items);
+		debugger;
+		return (
+			<ListView dataSource={this.state.ds}
+								style={styles.container}
+								renderRow={this._renderRow} />
+		)
+		// 	: <Text>No Data Yet</Text>;
 	},
 })
 

@@ -8,14 +8,17 @@
 // REACT NATIVE PARTS
 var React = require("react-native");
 var Icons = require("react-native-vector-icons");
-
-// 3RD PARTY SYSETMS
-var Firebase = require("firebase");
+var Reflux = require("reflux");
 
 // PERSONAL COMPONENTS
 var LoginScene = require("../Scenes/LoginScene");
 var MainScene = require("../Scenes/MainScene");
-// var TestScene = require("../Comps/TestScene");
+
+// ACTIONS && HOSTS
+var ItemActions = require("../Actions/ItemActions");
+var ItemStore = require("../Stores/ItemStore");
+var HostStore = require("../Stores/HostStore");
+var HostAction = require("../Actions/HostActions");
 
 var {
 	Component,
@@ -42,29 +45,20 @@ var styles = StyleSheet.create({
 });
 
 var AuthScene = React.createClass({
+	mixins: [Reflux.connect(HostStore), Reflux.ListenerMixin],
 	componentWillMount: function() {
-		this.state = {
-			backend: "shit",
-			isLoggedIn: false
-		};
-
 		{ /* validate whether user is authenticated w/ Firebase */}
-		this.state = {
-			backend: new Firebase("https://whatsthat.firebaseIO.com"),
-			isLoggedIn: false
-		};
+		this.state.isLoggedIn = false;
 
-		var authData = this.state.backend.getAuth();
+		var authData = this.state.db.getAuth();
 
 		if (authData) {
 			console.log("authenticated");
 			this.state.isLoggedIn = true;
 			var route = {
 				component: MainScene,
-				// component: TestScene,
 				passProps: {
 					user: authData,
-					backend: this.state.backend
 				}
 			}
 

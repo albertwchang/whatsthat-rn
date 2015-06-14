@@ -1,19 +1,19 @@
 'use strict'
 
 var Reflux = require("reflux");
+var Firebase = require("firebase");
 var HostActions = require("../Actions/HostActions");
+
 var _ = require("lodash");
 
 var HostStore = Reflux.createStore({
 	listenables: [HostActions],
 	hosts: {
-		db: {
-			name: "firebase",
-			url: "https://whatsthat.firebaseIO.com"
-		},
+		db: new Firebase("https://whatsthat.firebaseIO.com"),
 		policyGenerator: {
 			name: "martiangold",
-			url: "http://towimg.martiangold.com/s3-upload.php?bucket=whatsthat"
+			url: "http://towimg.martiangold.com/s3-whatsthat-upload.php?bucket=whatsthat",
+			bucket: "whatsthat",
 		},
 		image: {
 			name: "s3",
@@ -21,25 +21,18 @@ var HostStore = Reflux.createStore({
 		}
 	},
 
-	getInitialState: function(){
+	init: function() {
+		this.trigger({db: this.hosts.db});
+	},
+
+	getInitialState: function() {
 		return {
-			imgHostURL: this.imgHostURL
-		};
+			db: this.hosts.db
+		}
 	},
 
-	init() {
-		this.imgHostURL = this.hosts.image.url;
-	},
-
-	onSetImgHostURL: function(args) {
-		// args is an array
-		var urlParams = "";
-		_.each(args, (arg) => {
-			urlParams = urlParams +"/" +arg;
-		});
-
-		this.imgHostURL = this.imgHostURL +urlParams +"/";
-		this.trigger(this.imgHostURL);
+	onGetDb: function() {
+		HostActions.getDb.done("tesing.");
 	},
 
 	onGetS3Policy: function() {
@@ -56,9 +49,11 @@ var HostStore = Reflux.createStore({
   	fetch(this.hosts.policyGenerator.url, fetchParams)
 			.then((response) => {
 				var policy = JSON.parse(response._bodyText);
+				debugger;
 				HostActions.getS3Policy.done(policy);
 			})
 			.catch((err) => {
+				debugger;
 				HostActions.getS3Policy.failed(err);
 			});
 	}

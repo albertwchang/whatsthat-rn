@@ -1,18 +1,10 @@
 'use strict'
 
 var Reflux = require("reflux");
-var UserActions = Reflux.createActions(["one", "two", "three"]);
+var UserActions = Reflux.createActions(["getUsers"]);
 
-ItemActions.one.shouldEmit = (value) => {
-	return value > 1;
+UserActions.getUsers.shouldEmit = (value) => {
+	return true;
 }
 
-ItemActions.two.shouldEmit = (value) => {
-	return value > 2;
-}
-
-ItemActions.three.shouldEmit = (value) =>  {
-	return value > 3;
-}
-
-module.exports = ItemActions;
+module.exports = UserActions;

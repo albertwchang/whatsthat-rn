@@ -8,7 +8,10 @@ var HostActions = Reflux.createActions(
 		},
 		"setImgHostURL": {
 			children: ["done", "failed"]
-		}
+		},
+		"getDb": {
+			children: ["done", "failed"]
+		},
 	}
 );
 
@@ -17,6 +20,10 @@ HostActions.getS3Policy.shouldEmit = (value) => {
 }
 
 HostActions.setImgHostURL.shouldEmit = (value) => {
+	return true;
+}
+
+HostActions.getDb.shouldEmit = (value) => {
 	return true;
 }
 

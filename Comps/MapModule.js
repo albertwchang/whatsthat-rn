@@ -4,87 +4,89 @@
 var React = require('react-native');
 var Carousel = require('react-native-carousel');
 var Icons = require("react-native-vector-icons");
-var MapView = require("react-native-mapbox-gl");
+var MapBox = require("react-native-mapbox-gl");
 var Reflux = require("reflux");
 var TimerMixin = require('react-timer-mixin');
 
 // Personal Components
 
 // STORES && ACTIONS
+var MapStore = require("../Stores/MapStore");
+var MapAction = require("../Actions/MapAction");
 
 // Utilities
 var _ = require("lodash");
 
 var {
- 	MapView,
 	StyleSheet,
+	TouchableHighlight,
+	View,
 } = React;
 
 var styles = StyleSheet.create({
+	button: {
+		margin: 10,
+		padding: 5,
+		backgroundColor: "blue",
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	map: {
 		flex: 1,
-		height: 400
+		height: 450,
 	}
 })
 
-var MapScene = React.createClass({
-	// getInitialState: function() {
-	// 	return {
-	// 		mapParams: {
-	// 			annotations: [
-	// 				{
-	// 					latitude: 36.9735510,
-	// 					longitude: -121.9830190,
-	// 					title: "Parent's Home",
-	// 					subtitle: "Where I grew up..."
-	// 				}, {
-	// 					latitude: 36.9750338,
-	// 					longitude: -121.9820749,
-	// 					title: "Live Oak School",
-	// 					subtitle: "where it all began, school-wise"
-	// 				}
-	// 			],
-	// 			region: {
-	// 				latitude: 36.9741853,
-	// 				longitude: -121.9825684,
-	// 				latitudeDelta: 0,
-	// 				longitudeDelta: 0
-	// 			}
-	// 		}
-	// 	}
-	// },
-
+var MapModule = React.createClass({
+	mixins: [Reflux.connect(MapStore), Reflux.ListenerMixin],
 	getInitialState: function() {
 		return {
 			items: null,
+			mapParams: null
 		}
 	},
 
 	componentWillMount: function() {
-		
-		if (this.props.items != null) {
-			// build annotations	
+		var items = this.props.items;
+		var _mapParams = null;
+
+		if (items != null) {
+			_mapParams = this._prepMapParams(items);
 		}
 
 		this.setState({
-			ds: new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid}),
-		});
+			mapParams: _mapParams
+		})
 	},
 
 	componentWillReceiveProps: function(nextProps) {
-		var loadingStatus;
+		var _mapParams = null;
+		
+		if (nextProps.items != null) {
+			_mapParams = _prepMapParams(items);
+		}	else {
 
-		if (nextProps.items == null)
-			loadingStatus = true
-		else {
-			loadingStatus = false;
 		}
 
 		this.setState({
-			authors: nextProps.authors,
-			items: nextProps.items,
-			isLoading: loadingStatus,
-		});
+			mapParams: _mapParams
+		})
+	},
+
+	componentWillUpdate: function(nextProps, nextState) {	
+		console.log("this component has updated...");
+	},
+
+	_prepMapParams: function(items) {
+		var params = {
+			annotations: this._makeAnnotations(items),
+			centerPoint: this._calcCenterPoint(_.pluck(items, "geoPoint")),
+			zoomLevel: this._calcZoomLevel(),
+		};
+
+		debugger;
+		return params;
 	},
 
 	_makeAnnotations: function(items) {
@@ -98,7 +100,7 @@ var MapScene = React.createClass({
 		});
 	},
 
-	_calcCenter: function(geoPoints) {
+	_calcCenterPoint: function(geoPoints) {
 		// find center based on bounds (which is based on markers)
 		var total = geoPoints.length;
 		var X = 0, Y = 0, Z = 0;
@@ -132,33 +134,33 @@ var MapScene = React.createClass({
 	},
 
 	_calcZoomLevel: function(bounds, containerDims, maxZoomLevel) {
-		var WORLD_DIM = { height: 256, width: 256 };
+		// var WORLD_DIM = { height: 256, width: 256 };
 
-    function latRad(lat) {
-      var sin = Math.sin(lat * Math.PI / 180);
-      var radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
-      return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
-    }
+  //   function latRad(lat) {
+  //     var sin = Math.sin(lat * Math.PI / 180);
+  //     var radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
+  //     return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
+  //   }
 
-    function zoom(mapPx, worldPx, fraction) {
-      return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
-    }
+  //   function zoom(mapPx, worldPx, fraction) {
+  //     return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
+  //   }
 
-    var ne = bounds.getNorthEast();
-    var sw = bounds.getSouthWest();
+  //   var ne = bounds.getNorthEast();
+  //   var sw = bounds.getSouthWest();
 
-    var latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI;
+  //   var latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI;
 
-    var lngDiff = ne.lng() - sw.lng();
-    var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
+  //   var lngDiff = ne.lng() - sw.lng();
+  //   var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
 
-    var latZoom = zoom(containerDims.height, WORLD_DIM.height, latFraction);
-    var lngZoom = zoom(containerDims.width, WORLD_DIM.width, lngFraction);
+  //   var latZoom = zoom(containerDims.height, WORLD_DIM.height, latFraction);
+  //   var lngZoom = zoom(containerDims.width, WORLD_DIM.width, lngFraction);
 
-    return Math.min(latZoom, lngZoom, maxZoomLevel);
+  //   return Math.min(latZoom, lngZoom, maxZoomLevel);
 
-    
-    // sk.eyJ1IjoiYWxiZXJ0d2NoYW5nIiwiYSI6IjI0NDEzMzNlMWM5MmYwMWQ5Y2UxY2UwZDJiNTU2OTU3In0.I-R3iWN1YIq-DeWrS8cSPg
+    return 14;
+
   	// var radiusInRad = radiusInKM / earthRadiusInKM;
 		// var longitudeDelta = rad2deg(radiusInRad / Math.cos(deg2rad(latitude)));
 		// var latitudeDelta = aspectRatio * rad2deg(radiusInRad);
@@ -182,15 +184,7 @@ var MapScene = React.createClass({
     // return qMaxZoomLevel.promise;
   },
 
-	_calcLatDelta: function() {
-
-	},
-
-	_calcLongDelta: function() {
-
-	},
-
-	_createBounds: function (maps, geoPoints) {
+	_createBounds: function(maps, geoPoints) {
 	  // var bounds = new maps.LatLngBounds();
 
 	  // _.each(geoPoints, function(geoPoint) {
@@ -201,15 +195,57 @@ var MapScene = React.createClass({
 	  // return bounds;
 	},
 
-	render: function() {
-		var mapParams = this.props.route.passProps.mapParams;
+	_onChange: function(e) {
+    this.setState({
+    	annotations: this.state.annotations,
+    	centerPoint: this.state.centerPoint,
+    	zoomLevel: e.zoom,
+    });
+  },
+  
+  _onUpdateUserLocation: function(location) {
+    console.log(location)
+  },
+  
+  _onOpenAnnotation: function(annotation) {
+    console.log(annotation)
+  },
 
-		return (
-			<MapView style={styles.map}
-							annotations={this.state.mapParams.annotations}
-							region={this.state.mapParams.region} />
-		);
+	render: function() {
+		var mapParams = this.state.mapParams;
+		var component;
+
+		if (mapParams == null)
+			component = <View style={styles.map}><Text>Still Loading</Text></View>
+		else
+			component =
+				<View>
+					<TouchableHighlight
+						underlayColor="#A4A4A4"
+						style={styles.button}
+						onPress={() => this._rowPressed(rowId, item)}>
+						<View>
+							<Text>Update GMaps</Text>
+						</View>
+					</TouchableHighlight>
+					<MapBox
+						style={styles.map}
+		        direction={10}
+		        rotateEnabled={true}
+		        showsUserLocation={true}
+		        accessToken={'sk.eyJ1IjoiYWxiZXJ0d2NoYW5nIiwiYSI6IjI0NDEzMzNlMWM5MmYwMWQ5Y2UxY2UwZDJiNTU2OTU3In0.I-R3iWN1YIq-DeWrS8cSPg'}
+		        styleURL={'asset://styles/dark-v7.json'}
+		        centerCoordinate={mapParams.centerPoint}
+		        userLocationVisible={true}
+		        zoomLevel={mapParams.zoomLevel}
+		        onRegionChange={this.onChange}
+		        annotations={mapParams.annotations}
+		        onOpenAnnotation={this._onOpenAnnotation}
+		        onUpdateUserLocation={this._onUpdateUserLocation} />
+		    </View>
+		
+		return component;
 	}
 })
 
-module.exports = MapScene;
+module.exports = MapModule;

@@ -5,6 +5,9 @@ var React = require("react-native");
 var Reflux = require("reflux");
 var NavBar = require("react-native-navbar");
 
+// SCENES
+var ItemDetailScene = require("../Scenes/ItemDetailScene");
+
 // COMPONENTS
 var MapModule = require("../Comps/MapModule");
 var ItemList = require("../Comps/ItemList");
@@ -33,6 +36,9 @@ var styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
+	main: {
+		flex: 1,
+	},
 	navBar: {
 		backgroundColor: "#A4A4A4"
 	},
@@ -45,12 +51,13 @@ var MainScene = React.createClass({
 	mixins: [Reflux.connect(HostStore)],
 	getInitialState: function() {
 		return {
+			dims: null,
 			items: null,
 			itemsObtained: false,
 			authorIds: [],
 			authors: [],
 			userObtained: true,
-			listScene: true,
+			listScene: false,
 			scene: ItemList,
 		};
 	},
@@ -105,8 +112,41 @@ var MainScene = React.createClass({
 		});
 	},
 
-	_renderScene: function(route, navigator) {
+	componentDidMount: function() {
 
+	},
+	
+	_setDims: function(e) {
+		if (this.state.dims == null) {
+			var layout = e.nativeEvent.layout; 
+			
+			this.setState({
+				dims: {
+					height: layout.height,
+					width: layout.width,
+				}
+			});
+		} else
+			return;
+  },
+
+  _openItemDetail: function(id, item, author) {
+  	var route = {
+		  component: ItemDetailScene,
+		  passProps: {
+		  	dims: this.state.dims,
+		  	item: {
+		  		id: id,
+		  		value: item,
+		  	},
+		  	author: author,
+		  }
+		};
+
+  	this.props.navigator.push(route)
+  },
+
+	_renderScene: function(route, navigator) {
 		var Scene = this.state.scene;
 		var navBar = null;
 
@@ -118,13 +158,16 @@ var MainScene = React.createClass({
 		}
 
 		return (
-			<View>
+			<View style={styles.container}>
 		   	{navBar}
-		   	<Scene navigator={navigator}
-		   				route={route}
-		   				authors={this.state.authors}
-		   				items={this.state.items}
-		   				{...this.props.route.passProps} />
+		   	<View style={styles.main} onLayout={this._setDims}>
+			   	<Scene navigator={navigator}
+			   				dims={this.state.dims}
+			   				route={route}
+			   				authors={this.state.authors}
+			   				items={this.state.items}
+			   				{...this.props.route.passProps} />
+			  </View>
 			</View>
 		);
 	},
@@ -137,9 +180,10 @@ var MainScene = React.createClass({
 	},
 
 	render: function() {
-		var navItem = <NavItem type="text"
-													name="Map"
-													changeScene={this._changeScene.bind(this)} />;
+		var navItem = <NavItem
+										type="text"
+										name="Map"
+										changeScene={this._changeScene.bind(this)} />;
 
 		var navBar =
 			<NavBar title="All Items"
@@ -153,6 +197,9 @@ var MainScene = React.createClass({
 								initialRoute={{
 								  component: this.state.scene,
 								  navigationBar: navBar,
+								  passProps: {
+								  	openDetailScene: this._openItemDetail,
+								  },
 								}} />
 			)
 	}

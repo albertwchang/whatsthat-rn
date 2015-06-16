@@ -50,7 +50,7 @@ var HostStore = Reflux.createStore({
 			.then((response) => {
 				var policy = JSON.parse(response._bodyText);
 				debugger;
-				HostActions.getS3Policy.done(policy);
+				HostActions.getS3Policy.completed(policy);
 			})
 			.catch((err) => {
 				debugger;

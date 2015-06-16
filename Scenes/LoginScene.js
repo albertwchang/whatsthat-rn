@@ -50,7 +50,6 @@ var LoginScene = React.createClass({
 	},
 
 	_processLogin: function(event) {
-		debugger;
 		this.state.db.authWithPassword(this.state.creds, (err, authData) => {
 			if (authData) {
 				console.log("authenticated");
@@ -61,15 +60,24 @@ var LoginScene = React.createClass({
 					}
 				}
 
+
+				debugger;
+
+
+
+				
 				this.setState({
 					isLoggedIn: true
 				});
 
+				
+
 				this.props.navigator.replace(route);
 			} else {
+				debugger;
 				console.log("Error logging in...");
 			}
-		})
+		});
 	},
 
 	_updateEmail: function(e) {
@@ -95,7 +103,7 @@ var LoginScene = React.createClass({
 			<View style={styles.container}>
 				<TextInput onChange={this._updateEmail.bind(this)} style={styles.input} />
 				<TextInput onChange={this._updatepassword.bind(this)} style={styles.input} />
-				<TouchableHighlight onPress={this._processLogin.bind(this)} >
+				<TouchableHighlight onPress={this._processLogin.bind(this)} navigator={navigator}>
 					<Text style={styles.buttonText}>Go</Text>
 				</TouchableHighlight>
 			</View>

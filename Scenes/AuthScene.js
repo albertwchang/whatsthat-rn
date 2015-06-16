@@ -71,7 +71,7 @@ var AuthScene = React.createClass({
 	},
 
 	render: function() {
-		return <LoginScene backend={this.state.backend} />;
+		return <LoginScene backend={this.state.backend} navigator={navigator} />;
 	},
 });
 

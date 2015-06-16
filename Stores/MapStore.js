@@ -1,7 +1,6 @@
 'use strict'
 
 var Reflux = require("reflux");
-var GoogleMaps = require('google-maps');
 
 // STORES && ACTIONS
 var MapActions = require("../Actions/MapActions");
@@ -11,30 +10,34 @@ var _ = require("lodash");
 
 var MapStore = Reflux.createStore({
 	listenables: [MapActions],
-	map: null,
-	apiKey: "AIzaSyCOJ-dkcU-lwAdfUT4nywV1qrp-RdxwP44",
+	mapConstants: {
+		earthRadius: {
+			value: 6371,
+			measuringUnit: "km"
+		},
+	},
 
 	init: function() {
-		GoogleMaps.KEY = this.apiKey;
-		GoogleMaps.SENSOR = true;
-		this.onActivateMap();
+
 	},
 
 	getInitialState: function() {
 		return {
-			map: this.map,
+			mapConstants: this.mapConstants,
 		}
 	},
 
 	onActivateMap: function() {
 		if (this.map == null) {
-			// this.map NOT instantiated
-			GoogleMaps.load((googleMap) => {
-				this.map = googleMap;
-				// this.trigger({map: this.map});
-			}, (err) => {
-				qMap.reject(err);
-			});
+			// // this.map NOT instantiated
+			// GoogleMaps.load((googleMap) => {
+			// 	debugger;
+			// 	this.map = googleMap;
+			// 	this.trigger({map: this.map});
+			// }, (err) => {
+			// 	console.log(err);
+			// });
+			debugger;
 		} else {
 			// this.map IS instantiated
 		}

@@ -43,7 +43,6 @@ var styles = StyleSheet.create({
 	},
 	loading: {
 		alignItems: "center",
-		color: "#FE2E2E",
 		height: 500,
 		justifyContent: "center"
 	},
@@ -99,18 +98,17 @@ var ItemList = React.createClass({
 		});
 	},
 
-	_rowPressed: function(key, item) {
-		console.log("testing");
+	_rowPressed: function(id, item, author) {
+		this.props.route.passProps.openDetailScene(id, item, author);
 	},
 
 	_renderRow: function(item, sectionId, rowId) {
-
 		var author = this.props.authors[item.authorId];
 
 		return (
 			<TouchableHighlight
 				underlayColor="#A4A4A4"
-				onPress={() => this._rowPressed(rowId, item)}>
+				onPress={() => this._rowPressed(rowId, item, author)}>
 				
 				<View accessibilityOnTap={false}>
 					<View style={styles.rowContainer}>

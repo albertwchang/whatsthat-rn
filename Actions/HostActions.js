@@ -3,9 +3,7 @@
 var Reflux = require("reflux");
 var HostActions = Reflux.createActions(
 	{
-		"getS3Policy": {
-			children: ["done", "failed"]
-		},
+		"getS3Policy": {asyncResult: true},
 		"setImgHostURL": {
 			children: ["done", "failed"]
 		},

@@ -12,13 +12,17 @@ var TimerMixin = require('react-timer-mixin');
 
 // STORES && ACTIONS
 var MapStore = require("../Stores/MapStore");
-var MapAction = require("../Actions/MapAction");
+var MapActions = require("../Actions/MapActions");
 
 // Utilities
 var _ = require("lodash");
+var MapUtils = require("googlemaps-utils");
+var GetBounds = require('getboundingbox');
 
 var {
+	MapView,
 	StyleSheet,
+	Text,
 	TouchableHighlight,
 	View,
 } = React;
@@ -34,7 +38,6 @@ var styles = StyleSheet.create({
 	},
 	map: {
 		flex: 1,
-		height: 450,
 	}
 })
 
@@ -57,7 +60,11 @@ var MapModule = React.createClass({
 
 		this.setState({
 			mapParams: _mapParams
-		})
+		});
+	},
+
+	componentDidMount: function() {
+		MapActions.activateMap();
 	},
 
 	componentWillReceiveProps: function(nextProps) {
@@ -74,30 +81,100 @@ var MapModule = React.createClass({
 		})
 	},
 
-	componentWillUpdate: function(nextProps, nextState) {	
+	componentWillUpdate: function(nextProps, nextState) {
+		debugger;
 		console.log("this component has updated...");
 	},
 
 	_prepMapParams: function(items) {
-		var params = {
-			annotations: this._makeAnnotations(items),
-			centerPoint: this._calcCenterPoint(_.pluck(items, "geoPoint")),
-			zoomLevel: this._calcZoomLevel(),
+		// var centerPoint = this._calcCenterPoint(_.pluck(items, "geoPoint"));
+		var dims = this.props.dims;
+		var geoPoints = _.pluck(items, "geoPoint");
+		var bounds = this._getBounds(geoPoints);
+		var centerPoint = {
+			long: (bounds.minY + bounds.maxY) / 2,
+			longitude: (bounds.minY + bounds.maxY) / 2,
+			lat: (bounds.minX + bounds.maxX) / 2,
+			latitude: (bounds.minX + bounds.maxX) / 2,
 		};
 
-		debugger;
+		// calculate the zoom for a given bounds (l, b, r, t), width and height 
+		var zoomLevel = MapUtils.calcZoomForBounds(
+			[bounds.minY, bounds.minX, bounds.maxY, bounds.maxX],
+			dims.width,
+			dims.height,
+		);
+
+		var params = {
+			annotations: this._makeAnnotations(items),
+			centerPoint: centerPoint,
+			region: this._makeRegion(zoomLevel, centerPoint, dims),
+			zoomLevel: zoomLevel,
+		};
+
 		return params;
 	},
 
 	_makeAnnotations: function(items) {
-		return _.map(items, function(item) {
+		var annotations = _.map(items, function(item) {
 			return {
 				latitude: item.geoPoint.lat,
 				longitude: item.geoPoint.long,
 				title: item.name,
 				subtitle: item.desc,
+				hasLeftCallout: true,
+        onLeftCalloutPress: function() {
+        	console.log("map item pressed");
+        } 
 			};
 		});
+
+		return annotations;
+	},
+
+	_makeRegion: function(zoomLevel, centerPoint, dims) {
+		// radiusInKM / earthRadiusInKM;
+		var radiusInRad = this._radiusFromZoom(zoomLevel) / this.state.mapConstants.earthRadius.value;
+		
+		// rad2deg(radiusInRad / Math.cos(deg2rad(latitude)));
+		var longitudeDelta = this._rad2Deg( radiusInRad / Math.cos(this._deg2Rad(centerPoint.lat)) );
+
+		// aspectRatio * rad2deg(radiusInRad);
+		var latitudeDelta = (dims.width / dims.height) * this._rad2Deg(radiusInRad);
+
+		return {
+			latitude: centerPoint.lat,
+			longitude: centerPoint.long,
+			latitudeDelta: latitudeDelta,
+			longitudeDelta: longitudeDelta,
+		};
+	},
+
+	_radiusFromZoom: function(zoomLevel) {
+		var kmPerMileRatio = 1.60934;
+
+		return kmPerMileRatio * Math.pow(2, (15 - zoomLevel));
+	},
+
+	_rad2Deg: function(angle) {
+		return angle * 57.29577951308232;
+	},
+
+	_deg2Rad: function(deg) {
+		return deg / 57.29577951308232;
+	},
+
+	_getBounds: function(geoPoints) {
+		var filteredGeoPoints = _.map( geoPoints, (geoPoint) => {
+			return _.omit(geoPoint, ["latitude", "longitude"]);
+		});
+
+		var rawGeoPoints = _.map(filteredGeoPoints, (geoPoint) => {
+			return _.values(geoPoint);
+		});
+
+		debugger;
+		return GetBounds(rawGeoPoints);
 	},
 
 	_calcCenterPoint: function(geoPoints) {
@@ -133,73 +210,13 @@ var MapModule = React.createClass({
 		};
 	},
 
-	_calcZoomLevel: function(bounds, containerDims, maxZoomLevel) {
-		// var WORLD_DIM = { height: 256, width: 256 };
-
-  //   function latRad(lat) {
-  //     var sin = Math.sin(lat * Math.PI / 180);
-  //     var radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
-  //     return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
-  //   }
-
-  //   function zoom(mapPx, worldPx, fraction) {
-  //     return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
-  //   }
-
-  //   var ne = bounds.getNorthEast();
-  //   var sw = bounds.getSouthWest();
-
-  //   var latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI;
-
-  //   var lngDiff = ne.lng() - sw.lng();
-  //   var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
-
-  //   var latZoom = zoom(containerDims.height, WORLD_DIM.height, latFraction);
-  //   var lngZoom = zoom(containerDims.width, WORLD_DIM.width, lngFraction);
-
-  //   return Math.min(latZoom, lngZoom, maxZoomLevel);
-
-    return 14;
-
-  	// var radiusInRad = radiusInKM / earthRadiusInKM;
-		// var longitudeDelta = rad2deg(radiusInRad / Math.cos(deg2rad(latitude)));
-		// var latitudeDelta = aspectRatio * rad2deg(radiusInRad);
-	},
-
-  _calcMaxZoomLevel: function(centerPoint) {
-    // var qMaxZoomLevel = $q.defer();
-    // var zoomService = new google.maps.MaxZoomService();
-    // var position = new google.maps.LatLng(centerPoint.latitude, centerPoint.longitude);
-
-    // zoomService.getMaxZoomAtLatLng(position, function(response) {
-    //   if (response.status == google.maps.MaxZoomStatus.OK) {
-    //       var maxZoom = 0;
-    //       maxZoom = (_maxZoomLevel < response.zoom) ? _maxZoomLevel : response.zoom;
-    //       qMaxZoomLevel.resolve(maxZoom);
-    //   } else
-    //       qMaxZoomLevel.reject({errMsg: "Couldn't get MaxZoomLevel"});
-    // });
-
-    // zoomService = null;
-    // return qMaxZoomLevel.promise;
-  },
-
-	_createBounds: function(maps, geoPoints) {
-	  // var bounds = new maps.LatLngBounds();
-
-	  // _.each(geoPoints, function(geoPoint) {
-	  //   bounds.extend(new maps.LatLng(geoPoint.lat,geoPoint.long));
-	  // });
-
-	  // maps = null;
-	  // return bounds;
-	},
-
 	_onChange: function(e) {
     this.setState({
-    	annotations: this.state.annotations,
-    	centerPoint: this.state.centerPoint,
-    	zoomLevel: e.zoom,
+    	mapParams: {
+    		annotations: this.state.annotations,
+	    	centerPoint: this.state.centerPoint,
+	    	zoomLevel: e.zoom,
+	    }
     });
   },
   
@@ -215,34 +232,32 @@ var MapModule = React.createClass({
 		var mapParams = this.state.mapParams;
 		var component;
 
-		if (mapParams == null)
+		debugger;
+
+		if (!mapParams)
 			component = <View style={styles.map}><Text>Still Loading</Text></View>
 		else
 			component =
-				<View>
-					<TouchableHighlight
-						underlayColor="#A4A4A4"
-						style={styles.button}
-						onPress={() => this._rowPressed(rowId, item)}>
-						<View>
-							<Text>Update GMaps</Text>
-						</View>
-					</TouchableHighlight>
-					<MapBox
-						style={styles.map}
-		        direction={10}
-		        rotateEnabled={true}
-		        showsUserLocation={true}
-		        accessToken={'sk.eyJ1IjoiYWxiZXJ0d2NoYW5nIiwiYSI6IjI0NDEzMzNlMWM5MmYwMWQ5Y2UxY2UwZDJiNTU2OTU3In0.I-R3iWN1YIq-DeWrS8cSPg'}
-		        styleURL={'asset://styles/dark-v7.json'}
-		        centerCoordinate={mapParams.centerPoint}
-		        userLocationVisible={true}
-		        zoomLevel={mapParams.zoomLevel}
-		        onRegionChange={this.onChange}
-		        annotations={mapParams.annotations}
-		        onOpenAnnotation={this._onOpenAnnotation}
-		        onUpdateUserLocation={this._onUpdateUserLocation} />
-		    </View>
+					// <MapBox
+					// 	refs="map"
+					// 	style={styles.map}
+		   //      direction={10}
+		   //      rotateEnabled={true}
+		   //      showsUserLocation={true}
+		   //      accessToken={'sk.eyJ1IjoiYWxiZXJ0d2NoYW5nIiwiYSI6IjI0NDEzMzNlMWM5MmYwMWQ5Y2UxY2UwZDJiNTU2OTU3In0.I-R3iWN1YIq-DeWrS8cSPg'}
+		   //      styleURL={'asset://styles/dark-v7.json'}
+		   //      centerCoordinate={mapParams.centerPoint}
+		   //      userLocationVisible={true}
+		   //      zoomLevel={mapParams.zoomLevel}
+		   //      onRegionChange={this.onChange}
+		   //      annotations={mapParams.annotations}
+		   //      onOpenAnnotation={this._onOpenAnnotation}
+		   //      onUpdateUserLocation={this._onUpdateUserLocation} />
+
+			  <MapView
+		   		style={styles.map}
+          region={mapParams.region}
+          annotations={mapParams.annotations} />
 		
 		return component;
 	}

@@ -112,7 +112,7 @@ var ItemList = React.createClass({
 				
 				<View accessibilityOnTap={false}>
 					<View style={styles.rowContainer}>
-						{<Image style={styles.thumb} source={{ uri: item.imgURLs.avatar }} />}
+						<Image style={styles.thumb} source={{ uri: item.imgURLs.avatar }} />
 						<View style={styles.textContainer}>
 							<Text style={styles.itemName}>{item.name}</Text>
 							<Text style={styles.author}

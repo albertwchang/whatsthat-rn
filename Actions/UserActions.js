@@ -1,9 +1,11 @@
 'use strict'
 
 var Reflux = require("reflux");
-var UserActions = Reflux.createActions(["getUsers"]);
+var UserActions = Reflux.createActions({
+	"fillAuthenticatedUser": {asyncResult: true},
+});
 
-UserActions.getUsers.shouldEmit = (value) => {
+UserActions.fillAuthenticatedUser.shouldEmit = (value) => {
 	return true;
 }
 

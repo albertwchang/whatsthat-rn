@@ -15,10 +15,14 @@ var LoginScene = require("../Scenes/LoginScene");
 var MainScene = require("../Scenes/MainScene");
 
 // ACTIONS && HOSTS
-var ItemActions = require("../Actions/ItemActions");
 var ItemStore = require("../Stores/ItemStore");
+var ItemActions = require("../Actions/ItemActions");
+
 var HostStore = require("../Stores/HostStore");
-var HostAction = require("../Actions/HostActions");
+var HostActions = require("../Actions/HostActions");
+
+var UserStore = require("../Stores/UserStore");
+var UserActions = require("../Actions/UserActions");
 
 var {
 	Component,
@@ -47,22 +51,22 @@ var styles = StyleSheet.create({
 var AuthScene = React.createClass({
 	mixins: [Reflux.connect(HostStore), Reflux.ListenerMixin],
 	componentWillMount: function() {
-		{ /* validate whether user is authenticated w/ Firebase */}
+		// validate whether user is authenticated w/ Firebase
 		this.state.isLoggedIn = false;
 
 		var authData = this.state.db.getAuth();
-
 		if (authData) {
-			console.log("authenticated");
-			this.state.isLoggedIn = true;
-			var route = {
-				component: MainScene,
-				passProps: {
-					user: authData,
+			UserActions.fillAuthenticatedUser.triggerPromise(authData.uid).then((user) => {
+				this.state.isLoggedIn = true;
+				var route = {
+					component: MainScene,
+					passProps: {
+						user: authData,
+					}
 				}
-			}
 
-			this.props.navigator.replace(route);
+				this.props.navigator.replace(route);
+			});
 		}
 	},
 

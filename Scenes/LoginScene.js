@@ -103,7 +103,7 @@ var LoginScene = React.createClass({
 			<View style={styles.container}>
 				<TextInput onChange={this._updateEmail.bind(this)} style={styles.input} />
 				<TextInput onChange={this._updatepassword.bind(this)} style={styles.input} />
-				<TouchableHighlight onPress={this._processLogin.bind(this)} navigator={navigator}>
+				<TouchableHighlight onPress={this._processLogin} navigator={navigator}>
 					<Text style={styles.buttonText}>Go</Text>
 				</TouchableHighlight>
 			</View>

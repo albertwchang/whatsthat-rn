@@ -6,7 +6,7 @@ var Reflux = require("reflux");
 var NavBar = require("react-native-navbar");
 
 // SCENES
-var ItemDetailScene = require("../Scenes/ItemDetailScene");
+var ItemDetailScene = require("./ItemDetailScene");
 
 // COMPONENTS
 var MapModule = require("../Comps/MapModule");
@@ -47,7 +47,7 @@ var styles = StyleSheet.create({
 	}
 });
 
-var MainScene = React.createClass({
+var SummaryScene = React.createClass({
 	mixins: [Reflux.connect(HostStore)],
 	getInitialState: function() {
 		return {
@@ -130,7 +130,7 @@ var MainScene = React.createClass({
 			return;
   },
 
-  _openItemDetail: function(id, item, author) {
+  _openItemDetail: function(id, item, author, navigator) {
   	var route = {
 		  component: ItemDetailScene,
 		  passProps: {
@@ -143,7 +143,8 @@ var MainScene = React.createClass({
 		  }
 		};
 
-  	this.props.navigator.push(route)
+		debugger;
+  	navigator.push(route);
   },
 
 	_renderScene: function(route, navigator) {
@@ -165,8 +166,7 @@ var MainScene = React.createClass({
 			   				dims={this.state.dims}
 			   				route={route}
 			   				authors={this.state.authors}
-			   				items={this.state.items}
-			   				{...this.props.route.passProps} />
+			   				items={this.state.items} />
 			  </View>
 			</View>
 		);
@@ -205,4 +205,4 @@ var MainScene = React.createClass({
 	}
 });
 
-module.exports = MainScene;
+module.exports = SummaryScene;

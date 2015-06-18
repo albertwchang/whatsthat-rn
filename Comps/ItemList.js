@@ -99,7 +99,7 @@ var ItemList = React.createClass({
 	},
 
 	_rowPressed: function(id, item, author) {
-		this.props.route.passProps.openDetailScene(id, item, author);
+		this.props.route.passProps.openDetailScene(id, item, author, this.props.navigator);
 	},
 
 	_renderRow: function(item, sectionId, rowId) {

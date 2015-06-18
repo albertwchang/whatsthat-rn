@@ -3,11 +3,11 @@
 var React = require("react-native");
 var Icons = require("react-native-vector-icons");
 var Reflux = require("reflux");
-var MainScene = require("./MainScene");
+
+// ACTIONS && HOSTS
 var HostStore = require("../Stores/HostStore");
 
 var {
-	Component,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -37,7 +37,7 @@ var styles = StyleSheet.create({
 	}
 });
 
-var LoginScene = React.createClass({
+var RegisterComp = React.createClass({
 	mixins: [Reflux.connect(HostStore)],
 	
 	componentWillMount: function() {
@@ -54,7 +54,7 @@ var LoginScene = React.createClass({
 			if (authData) {
 				console.log("authenticated");
 				var route = {
-					component: MainScene,
+					component: SummaryScene,
 					passProps: {
 						user: authData
 					}
@@ -101,14 +101,10 @@ var LoginScene = React.createClass({
 	render: function() {
 		return (
 			<View style={styles.container}>
-				<TextInput onChange={this._updateEmail.bind(this)} style={styles.input} />
-				<TextInput onChange={this._updatepassword.bind(this)} style={styles.input} />
-				<TouchableHighlight onPress={this._processLogin} navigator={navigator}>
-					<Text style={styles.buttonText}>Go</Text>
-				</TouchableHighlight>
+				<Text>This is the Registration Component</Text>
 			</View>
 		);
 	}
 })
 
-module.exports = LoginScene;
+module.exports = RegisterComp;

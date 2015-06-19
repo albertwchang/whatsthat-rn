@@ -121,7 +121,6 @@ var Votes = React.createClass({
       });
     }
 
-    debugger;
     // update || create user's vote list
     if (userVoteIndex > -1)
     	this.state.dbRef.user.child("votes" +userVoteIndex).update(currentUser.votes[userVoteIndex]);

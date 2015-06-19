@@ -173,7 +173,6 @@ var MapModule = React.createClass({
 			return _.values(geoPoint);
 		});
 
-		debugger;
 		return GetBounds(rawGeoPoints);
 	},
 
@@ -231,8 +230,6 @@ var MapModule = React.createClass({
 	render: function() {
 		var mapParams = this.state.mapParams;
 		var component;
-
-		debugger;
 
 		if (!mapParams)
 			component = <View style={styles.map}><Text>Still Loading</Text></View>

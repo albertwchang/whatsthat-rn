@@ -73,7 +73,7 @@ var ItemDetailScene = React.createClass({
 	},
 
 	componentWillMount: function() {
-		debugger;
+
 	},
 
 	componentDidMount: function() {

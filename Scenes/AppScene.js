@@ -22,6 +22,21 @@ var {
 	View,
 } = React;
 
+var styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
+	main: {
+		flex: 1,
+	},
+	navBar: {
+		backgroundColor: "#A4A4A4"
+	},
+	text: {
+		color: "#FFFFFF"
+	}
+});
+
 var AppScene = React.createClass({
 	getInitialState: function() {
 		return {
@@ -51,29 +66,43 @@ var AppScene = React.createClass({
 		});
 	},
 
+	_renderScene: function(route, navigator) {
+		var Scene = route.component;
+		var navBar = null;
+
+		return (
+	   	<Scene
+	   		navigator={navigator}
+	   		route={route} />
+		);
+	},
+
 	_renderContent: function() {
 		var component = null;
-
-		debugger;
-		
 		switch(this.state.chosenTab) {
 			case "main":
-				component = <SummaryScene navigator={navigator}/>;
+				component = SummaryScene;
 			
 			case "add":
-				component = <SummaryScene navigator={navigator}/>;
+				component = SummaryScene;
 
 			case "profile":
-				component = <SummaryScene navigator={navigator}/>;
+				component = SummaryScene;
 
 			case "settings":
-				component = <SummaryScene navigator={navigator}/>;
+				component = SummaryScene;
 
 			default:
-				component: <SummaryScene navigator={navigator}/>;
+				component = SummaryScene;
 		}
 
-		return component;
+		return (
+			<Navigator
+				renderScene={this._renderScene.bind(this)}
+				initialRoute={{
+				  component: component,
+				}} />
+		);
 	},
 
 	render: function() {
@@ -90,7 +119,7 @@ var AppScene = React.createClass({
 					  });
 					}}
 					selected={this.state.chosenTab === 'main'}
-					title="Items">{this._renderContent()}
+					title="Items">{this._renderContent(this.props.navigator)}
         </TabBarIOS.Item>
         
         <TabBarIOS.Item

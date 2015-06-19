@@ -80,9 +80,9 @@ var App = React.createClass({
     if (this.state.authenticatedUser == null)
       component = <View><Text>Loading</Text></View>;
     else if ( _.has(this.state.authenticatedUser, "value") )
-      component = <AppScene navigator={navigator} />;
+      component = <AppScene />;
     else
-      component = <AuthScene navigator={navigator} />;
+      component = <AuthScene />;
     
     return (component);
   },

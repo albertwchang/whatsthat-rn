@@ -111,10 +111,6 @@ var SummaryScene = React.createClass({
 			console.log("Error: ", err);
 		});
 	},
-
-	componentDidMount: function() {
-
-	},
 	
 	_setDims: function(e) {
 		if (this.state.dims == null) {
@@ -130,7 +126,7 @@ var SummaryScene = React.createClass({
 			return;
   },
 
-  _openItemDetail: function(id, item, author, navigator) {
+  _openItemDetail: function(id, item, author) {
   	var route = {
 		  component: ItemDetailScene,
 		  passProps: {
@@ -143,8 +139,7 @@ var SummaryScene = React.createClass({
 		  }
 		};
 
-		debugger;
-  	navigator.push(route);
+  	this.props.navigator.push(route);
   },
 
 	_renderScene: function(route, navigator) {
@@ -193,7 +188,7 @@ var SummaryScene = React.createClass({
 							customPrev={navItem} />
 
 		return (
-			<Navigator renderScene={this._renderScene.bind(this)}
+			<Navigator renderScene={this._renderScene}
 								initialRoute={{
 								  component: this.state.scene,
 								  navigationBar: navBar,

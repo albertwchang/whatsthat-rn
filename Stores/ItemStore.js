@@ -8,6 +8,7 @@ var HostActions = require("../Actions/HostActions");
 var HostStore = require("./HostStore");
 
 // UTILITIES
+var _ = require("lodash");
 
 var ItemStore = Reflux.createStore({
 	listenables: [ItemActions],
@@ -18,7 +19,6 @@ var ItemStore = Reflux.createStore({
 	getInitialState: function() {
 		return {
 			items: this.items,
-			newItem: null,
 		}
 	},
 
@@ -50,8 +50,11 @@ var ItemStore = Reflux.createStore({
 			});
 
 			// LISTEN TO CHANGES TO ANY ITEM
-			dbRef.on("child_changed", (data) => {
-				this.trigger({newItem: "testing"});
+			dbRef.on("child_changed", (data, key) => {
+				if ( _.has(this.items[type], key) ) {
+					this.items[type][key] = data.val();
+					this.trigger({items: this.items});
+				}
 			});
 		}
 	},

@@ -14,10 +14,12 @@ var ItemList = require("../Comps/ItemList");
 var NavItem = require("../Comps/NavItem");
 
 // ACTIONS && STORES
-var ItemActions = require("../Actions/ItemActions");
-var ItemStore = require("../Stores/ItemStore");
 var HostActions = require("../Actions/HostActions");
 var HostStore = require("../Stores/HostStore");
+var ItemActions = require("../Actions/ItemActions");
+var ItemStore = require("../Stores/ItemStore");
+var UserActions = require("../Actions/UserActions");
+var UserStore = require("../Stores/UserStore");
 
 // Utilities
 var _ = require("lodash");
@@ -63,38 +65,30 @@ var SummaryScene = React.createClass({
 
 	componentWillMount: function() {
 		var authorIds = null;
-		var items = null;
+		var items = [];
 	
 		// get items and authors data from respective stores
 		var itemQuery = this.state.db.child("items");
 
 		ItemActions.getItems.triggerPromise("items", "all").then((_items) => {
-			var x = 5;
 			items['all'] = _items;
-			authorIds = _.uniq( _.pluck(items, "authorId") );
+			authorIds = _.uniq( _.pluck(items["all"], "authorId") );
 			return authorIds;
 		}).then((authorIds) => {
-			var query = this.state.db.child("users");
-			var qAuthors = new Promise((resolve, rejected) => {
-				query.once("value", (data) => {
-					var authors = _.transform(data.val(), (result, author, key) => {
-						if ( _.contains(authorIds, key) )
-							result[key] = author;
-					});
+			return UserActions.getUsers.triggerPromise("users", "all").then((users) => {
+				var authors = _.transform(users, (result, author, key) => {
+					if ( _.contains(authorIds, key) )
+						result[key] = author;
+				});
 
-					resolve(authors);
-				}, (err) => {
-					reject(err);
-				});	
-			})
-
-			return qAuthors;
+				return authors;
+			});
 		}).finally((authors) => {
 			/*******************************************************************
 			***************** Finally, process all obtained data ***************
 			*******************************************************************/
 			this.setState({
-				items['all']: items,
+				items: items, /* LOOK INTO THIS LATER, SO IT DOESN'T ERASE OTHER ELEMENTS*/
 				itemsObtained: true,
 				authors: authors,
 				authorIds: authorIds,
@@ -105,7 +99,8 @@ var SummaryScene = React.createClass({
 	},
 
 	componentWillUpdate: function(nextProps, nextState) {
-		debugger;
+		if (nextState.items["all"] != null);
+			// debugger;
 	},
 	
 	_setDims: function(e) {
@@ -126,12 +121,13 @@ var SummaryScene = React.createClass({
   	var route = {
 		  component: ItemDetailScene,
 		  passProps: {
+		  	author: author,
+		  	context: "all",
 		  	dims: this.state.dims,
 		  	item: {
 		  		id: id,
 		  		value: item,
 		  	},
-		  	author: author,
 		  }
 		};
 
@@ -154,16 +150,17 @@ var SummaryScene = React.createClass({
 		   	{navBar}
 		   	<View style={styles.main} onLayout={this._setDims}>
 			   	<Scene navigator={navigator}
-			   				dims={this.state.dims}
-			   				route={route}
 			   				authors={this.state.authors}
-			   				items={this.state.items["all"]} />
+			   				context="all"
+			   				dims={this.state.dims}
+			   				items={this.state.items["all"]}
+			   				route={route} />
 			  </View>
 			</View>
 		);
 	},
 
-	_changeScene: function(navigator) {
+	_changeScene: function() {
 		this.setState({
 			listScene: !this.state.listScene,
 			scene: this.state.listScene ? MapModule : ItemList
@@ -174,7 +171,7 @@ var SummaryScene = React.createClass({
 		var navItem = <NavItem
 										type="text"
 										name="Map"
-										changeScene={this._changeScene.bind(this)} />;
+										changeScene={this._changeScene} />;
 
 		var navBar =
 			<NavBar title="All Items"

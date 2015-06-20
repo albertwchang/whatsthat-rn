@@ -16,15 +16,13 @@ var ItemActions = require("../Actions/ItemActions");
 var ItemStore = require("../Stores/ItemStore");
 var HostActions = require("../Actions/HostActions");
 var HostStore = require("../Stores/HostStore");
-
-var UserStore = require("../Stores/UserStore");
 var UserActions = require("../Actions/UserActions");
+var UserStore = require("../Stores/UserStore");
 
 // Utilities
 var _ = require("lodash");
 
 var {
-	Component,
 	Image,
  	Navigator,
  	SegmentedControlIOS,
@@ -63,36 +61,15 @@ var styles = StyleSheet.create({
 });
 
 var ItemDetailScene = React.createClass({
-	mixins: [Reflux.connect(HostStore), Reflux.connect(UserStore)],
+	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore), Reflux.connect(UserStore)],
 	getInitialState: function() {
 		return {
+			author: this.props.route.passProps.author,
 			dims: this.props.route.passProps.dims,
 			item: this.props.route.passProps.item,
-			author: this.props.route.passProps.author,
+			context: this.props.route.passProps.context,
 		};
 	},
-
-	componentWillMount: function() {
-
-	},
-
-	componentDidMount: function() {
-
-	},
-
-	// _setDims: function(e) {
-	// 	if (this.state.dims == null) {
-	// 		var layout = e.nativeEvent.layout; 
-			
-	// 		this.setState({
-	// 			dims: {
-	// 				height: layout.height,
-	// 				width: layout.width,
-	// 			}
-	// 		});
-	// 	} else
-	// 		return;
- //  },
 
 	_renderScene: function(route, navigator) {
 		var navBar = null;
@@ -162,7 +139,7 @@ var ItemDetailScene = React.createClass({
 
 		return (
 			<Navigator
-				renderScene={this._renderScene.bind(this)}
+				renderScene={this._renderScene}
 				initialRoute={{
 				  navigationBar: navBar,
 				}} />

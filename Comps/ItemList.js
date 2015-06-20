@@ -69,15 +69,17 @@ var ItemList = React.createClass({
 	mixins: [TimerMixin, Reflux.connect(HostStore)],
 	getInitialState: function() {
 		return {
+			authors: null,
+			context: null,
 			ds: null,
 			isLoading: true,
-			authors: null,
 			items: null,
 		}
 	},
 
 	componentWillMount: function() {
 		this.setState({
+			context: this.props.context,
 			ds: new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid}),
 		});
 	},

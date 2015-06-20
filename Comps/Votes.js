@@ -67,22 +67,31 @@ var Votes = React.createClass({
     // previous vote exists
     var oldUserVote = oldUserVote();
 
-    if (oldUserVote) {
-    	// update old vote to new vote
+    if ( oldUserVote && (oldUserVote.direction != voteDirection) ) {
+    	// change votes
       addVoteToItem(voteDirection);
       subtractVoteFromItem(voteDirection);
       updateUserVotes(userVoteIndex, voteDirection);
-    } else { // no previous vote -- this is a new vote
+
+      this.state.dbRef.user.child("votes" +userVoteIndex).update(currentUser.votes[userVoteIndex]);
+    } else if (!oldUserVote) { // no previous vote -- this is a new vote
       addVoteToItem(voteDirection);
       addToUserVotes(voteDirection);
-    }
+
+    	this.state.dbRef.user.update({"votes": currentUser.votes});
+    } else
+    	return;
+
+  	this.state.dbRef.item.child("votes").set(item.value.votes);
 
     // check if previous vote exists
 		function oldUserVote() {
 			if ( _.has(currentUser, "votes") ) {
-				userVoteIndex = getUserVoteIndex(item.id);
+				userVoteIndex = getUserVoteIndex(item.id) || userVoteIndex;
 				return _.findWhere(currentUser.votes, {"itemId": item.id});
 			} else
+				// add "votes" property to currentUser
+				_.extend(currentUser, {"votes": []});
 				return undefined;
 		}
 
@@ -101,15 +110,11 @@ var Votes = React.createClass({
         itemId: item.id
       };
 
-      if ( !_.has(currentUser, "votes") ) {
-      	_.extend(currentUser, {"votes": [newVote]});
-      } else {
-      	currentUser.votes.push(newVote);
-			}
+    	currentUser.votes.push(newVote);
 		}
 
-		function subtractVoteFromItem(direction) {
-			var directionToSubtract = "up" ? "down" : "up";
+		function subtractVoteFromItem(newDirection) {
+			var directionToSubtract = (newDirection == "up") ? "down" : "up";
 			item.value.votes[directionToSubtract]--;
 		}
 
@@ -122,15 +127,6 @@ var Votes = React.createClass({
         return vote.itemId == itemId;
       });
     }
-
-    // update || create user's vote list
-    if (userVoteIndex > -1)
-    	this.state.dbRef.user.child("votes" +userVoteIndex).update(currentUser.votes[userVoteIndex]);
-    else
-    	this.state.dbRef.user.update({"votes": currentUser.votes});
-
-    // update item's always-persisting votes list
-    this.state.dbRef.item.child("votes").set(item.value.votes);
  	},
 
 	render: function() {

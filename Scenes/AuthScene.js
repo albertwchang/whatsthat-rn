@@ -19,6 +19,7 @@ var HostStore = require("../Stores/HostStore");
 var HostActions = require("../Actions/HostActions");
 
 var {
+  Navigator,
 	StyleSheet,
 	Text,
 	View,
@@ -27,17 +28,7 @@ var {
 var styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
   },
 });
 
@@ -49,12 +40,26 @@ var AuthScene = React.createClass({
     };
   },
 
+  _renderScene: function(route, navigator) {
+    var Scene = route.component;
+
+    return (
+      <Scene
+        navigator={navigator}
+        route={route} />
+    );
+  },
+
   render: function() {
-    var component = (this.state.preferredScene == "login")
-    	? <LoginComp navigator={navigator} />
-    	: <RegisterComp navigator={navigator} />;
+    var component = (this.state.preferredScene == "login") ? LoginComp : RegisterComp;
     
-    return (component);
+    return (
+      <Navigator
+        renderScene={this._renderScene.bind(this)}
+        initialRoute={{
+          component: component,
+        }} />
+    );
   },
 });
 

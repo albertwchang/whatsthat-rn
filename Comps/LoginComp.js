@@ -24,11 +24,13 @@ var styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: '#000000',
+		justifyContent: 'center',
 		paddingRight: 25,
 		paddingLeft: 25,
+		borderWidth: 1,
+		borderColor: "red",
+    backgroundColor: "#000000",
 	},
 	input: {
 		height: 40,
@@ -53,29 +55,18 @@ var LoginComp = React.createClass({
 	_processLogin: function(event) {
 		this.state.db.authWithPassword(this.state.creds, (err, authData) => {
 			if (authData) {
-				console.log("authenticated");
 				var route = {
 					component: AppScene,
-					passProps: {
-						user: authData
-					}
-				}
-
-
-				debugger;
-
-
-
+				};
 				
 				this.setState({
 					isLoggedIn: true
 				});
 
-				
+				debugger;
 
 				this.props.navigator.replace(route);
 			} else {
-				debugger;
 				console.log("Error logging in...");
 			}
 		});

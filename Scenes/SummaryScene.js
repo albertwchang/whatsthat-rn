@@ -48,11 +48,10 @@ var styles = StyleSheet.create({
 });
 
 var SummaryScene = React.createClass({
-	mixins: [Reflux.connect(HostStore)],
+	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore)],
 	getInitialState: function() {
 		return {
 			dims: null,
-			items: null,
 			itemsObtained: false,
 			authorIds: [],
 			authors: [],
@@ -69,18 +68,11 @@ var SummaryScene = React.createClass({
 		// get items and authors data from respective stores
 		var itemQuery = this.state.db.child("items");
 
-		var qItems = new Promise((resolve, reject) => {
-			itemQuery.once("value", (data) => {
-				resolve(items = data.val());
-			}, (err) => {
-				console.log(err);
-				reject(err);
-			});
-		});
-
-		qItems.then((items) => {
+		ItemActions.getItems.triggerPromise("items", "all").then((_items) => {
+			var x = 5;
+			items['all'] = _items;
 			authorIds = _.uniq( _.pluck(items, "authorId") );
-			return authorIds
+			return authorIds;
 		}).then((authorIds) => {
 			var query = this.state.db.child("users");
 			var qAuthors = new Promise((resolve, rejected) => {
@@ -95,14 +87,14 @@ var SummaryScene = React.createClass({
 					reject(err);
 				});	
 			})
-			
+
 			return qAuthors;
 		}).finally((authors) => {
 			/*******************************************************************
 			***************** Finally, process all obtained data ***************
 			*******************************************************************/
 			this.setState({
-				items: items,
+				items['all']: items,
 				itemsObtained: true,
 				authors: authors,
 				authorIds: authorIds,
@@ -110,6 +102,10 @@ var SummaryScene = React.createClass({
 		}).catch((err) => {
 			console.log("Error: ", err);
 		});
+	},
+
+	componentWillUpdate: function(nextProps, nextState) {
+		debugger;
 	},
 	
 	_setDims: function(e) {
@@ -161,7 +157,7 @@ var SummaryScene = React.createClass({
 			   				dims={this.state.dims}
 			   				route={route}
 			   				authors={this.state.authors}
-			   				items={this.state.items} />
+			   				items={this.state.items["all"]} />
 			  </View>
 			</View>
 		);

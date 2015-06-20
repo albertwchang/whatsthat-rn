@@ -54,7 +54,7 @@ var App = React.createClass({
   componentWillMount: function() {
     // validate whether user is authenticated w/ Firebase
     var authData = this.state.db.getAuth();
-    
+
     if (authData) {
       UserActions.fillAuthenticatedUser.triggerPromise(authData.uid).then((user) => {
         this.setState({
@@ -69,6 +69,7 @@ var App = React.createClass({
       })
     } else {
       this.setState({
+        authenticatedUser: "",
         sceneLoaded: true,
       });
     }

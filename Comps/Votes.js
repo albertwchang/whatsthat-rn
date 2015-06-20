@@ -35,11 +35,13 @@ var styles = StyleSheet.create({
 
 var Votes = React.createClass({
 	getInitialState: function() {
+		
 		return {
 			dbRef: {
 				item: this.props.db.child("items/" +this.props.item.id),
 				user: this.props.db.child("users/" +this.props.currentUser.key),
 			},
+			votes: this.props.item.value.votes,
 			widthToFontRatio: 20,
 			widthToIconRatio: 8,
 		}
@@ -69,7 +71,7 @@ var Votes = React.createClass({
     	// update old vote to new vote
       addVoteToItem(voteDirection);
       subtractVoteFromItem(voteDirection);
-      updateUserVotes(userVoteIndex, direction);
+      updateUserVotes(userVoteIndex, voteDirection);
     } else { // no previous vote -- this is a new vote
       addVoteToItem(voteDirection);
       addToUserVotes(voteDirection);
@@ -147,7 +149,9 @@ var Votes = React.createClass({
 							name="thumbs-o-up"
 							size={sizes.icon}
 							color="#40FF00" />
-						<Text style={{fontSize: sizes.font, color: "#40FF00"}}>1512</Text>
+						<Text style={{fontSize: sizes.font, color: "#40FF00"}}>
+							{this.state.votes.up}
+						</Text>
 					</View>
 				</TouchableHighlight>
 				<TouchableHighlight
@@ -158,7 +162,9 @@ var Votes = React.createClass({
 							name="thumbs-o-down"
 							size={sizes.icon}
 							color="#FF0000" />
-						<Text style={{fontSize: sizes.font, color: "#FF0000"}}>25</Text>
+						<Text style={{fontSize: sizes.font, color: "#FF0000"}}>
+							{this.state.votes.down}
+						</Text>
 					</View>
 				</TouchableHighlight>
 			</View>

@@ -25,9 +25,7 @@ var {
 var styles = StyleSheet.create({
 	container: {
 		flex: 1,
-	},
-	main: {
-		flex: 1,
+		backgroundColor: "#000000",
 	},
 	navBar: {
 		backgroundColor: "#A4A4A4"
@@ -71,9 +69,11 @@ var AppScene = React.createClass({
 		var navBar = null;
 
 		return (
-	   	<Scene
-	   		navigator={navigator}
-	   		route={route} />
+	   	<View style={styles.container}>
+		  	<Scene
+		   		navigator={navigator}
+		   		route={route} />
+		  </View>
 		);
 	},
 

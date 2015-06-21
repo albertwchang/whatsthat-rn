@@ -100,6 +100,10 @@ var ItemList = React.createClass({
 		});
 	},
 
+	shouldComponentUpdate: function(nextProps, nextState) {
+		return (!nextState.items || !nextState.items[this.state.context]);
+	},
+
 	_rowPressed: function(id, item, author) {
 		this.props.route.passProps.openDetailScene(id, item, author);
 	},

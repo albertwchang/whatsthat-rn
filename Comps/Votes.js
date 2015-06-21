@@ -73,12 +73,15 @@ var Votes = React.createClass({
       subtractVoteFromItem(voteDirection);
       updateUserVotes(userVoteIndex, voteDirection);
 
-      this.state.dbRef.user.child("votes" +userVoteIndex).update(currentUser.votes[userVoteIndex]);
+      this.state.dbRef.user.child("votes/" +userVoteIndex).update(currentUser.votes[userVoteIndex]);
     } else if (!oldUserVote) { // no previous vote -- this is a new vote
       addVoteToItem(voteDirection);
       addToUserVotes(voteDirection);
 
-    	this.state.dbRef.user.update({"votes": currentUser.votes});
+      if ( _.has(currentUser, "votes") )
+    		this.state.dbRef.user.child("votes/" +userVoteIndex).set(currentUser.votes[userVoteIndex]);
+    	else
+    		this.state.dbRef.user.child.update({"votes": currentUser.votes});
     } else
     	return;
 
@@ -87,7 +90,10 @@ var Votes = React.createClass({
     // check if previous vote exists
 		function oldUserVote() {
 			if ( _.has(currentUser, "votes") ) {
-				userVoteIndex = getUserVoteIndex(item.id) || userVoteIndex;
+				userVoteIndex = _.findIndex(currentUser.votes, function(vote) {
+	        return vote.itemId == item.id;
+	      });
+
 				return _.findWhere(currentUser.votes, {"itemId": item.id});
 			} else
 				// add "votes" property to currentUser
@@ -111,6 +117,7 @@ var Votes = React.createClass({
       };
 
     	currentUser.votes.push(newVote);
+    	userVoteIndex = currentUser.votes.length - 1;
 		}
 
 		function subtractVoteFromItem(newDirection) {
@@ -121,12 +128,6 @@ var Votes = React.createClass({
 		function updateUserVotes(voteIndex, newDirection) {
 			currentUser.votes[voteIndex].direction = newDirection;
 		}
-
-		function getUserVoteIndex(itemId) {
-      return _.findIndex(currentUser.votes, function(vote) {
-        return vote.itemId == itemId;
-      });
-    }
  	},
 
 	render: function() {

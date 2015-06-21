@@ -63,8 +63,6 @@ var LoginComp = React.createClass({
 					isLoggedIn: true
 				});
 
-				debugger;
-
 				this.props.navigator.replace(route);
 			} else {
 				console.log("Error logging in...");

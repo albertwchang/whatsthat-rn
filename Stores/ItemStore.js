@@ -50,7 +50,9 @@ var ItemStore = Reflux.createStore({
 			});
 
 			// LISTEN TO CHANGES TO ANY ITEM
-			dbRef.on("child_changed", (data, key) => {
+			dbRef.on("child_changed", (data) => {
+				var key = data.key();
+
 				if ( _.has(this.items[type], key) ) {
 					this.items[type][key] = data.val();
 					this.trigger({items: this.items});

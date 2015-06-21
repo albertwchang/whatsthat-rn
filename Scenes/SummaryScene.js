@@ -50,7 +50,7 @@ var styles = StyleSheet.create({
 });
 
 var SummaryScene = React.createClass({
-	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore)],
+	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore), Reflux.ListenerMixin],
 	getInitialState: function() {
 		return {
 			dims: null,

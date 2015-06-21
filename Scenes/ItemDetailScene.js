@@ -57,7 +57,21 @@ var styles = StyleSheet.create({
   },
 	text: {
 		color: "#FFFFFF"
-	}
+	},
+	voteBox: {
+		flexDirection: "row",
+		margin: 3,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	voteBlock: {
+		alignItems: "center",
+		flex: 1,
+		flexDirection: "row",
+		justifyContent: "center",
+		marginHorizontal: 15,
+		marginVertical: 10,
+	},
 });
 
 var ItemDetailScene = React.createClass({
@@ -109,6 +123,10 @@ var ItemDetailScene = React.createClass({
 		   	</Carousel>
 		   	<View style={styles.main}>
 			   	<Votes
+			   		styles={{
+							voteBox: styles.voteBox,
+							voteBlock: styles.voteBlock,
+						}}
 			   		dims={this.state.dims}
 			   		currentUser={this.state.authenticatedUser}
 				  	item={this.state.item}

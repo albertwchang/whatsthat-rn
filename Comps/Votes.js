@@ -12,51 +12,25 @@ var {
 	View,
 } = React;
 
-var styles = StyleSheet.create({
-	container: {
-		borderColor: "#A4A4A4",
-		borderRadius: 3,
-		borderWidth: 1,
-		flexDirection: "row",
-		margin: 6,
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	block: {
-		alignItems: "center",
-		borderColor: "red",
-		borderWidth: 1,
-		flex: 1,
-		flexDirection: "row",
-		justifyContent: "center",
-		margin: 14,
-	},
-});
-
 var Votes = React.createClass({
 	getInitialState: function() {
-		
 		return {
 			dbRef: {
 				item: this.props.db.child("items/" +this.props.item.id),
 				user: this.props.db.child("users/" +this.props.currentUser.key),
 			},
+			preferredDim: (this.props.dims && this.props.dims.height > this.props.dims.width) ? "height" : "width",
 			votes: this.props.item.value.votes,
 			widthToFontRatio: 20,
-			widthToIconRatio: 8,
+			widthToIconRatio: 20,
 		}
 	},
 
-	componentWillMount: function() {
-	// Check whether the currentUser has already voted
-		// function alreadyVoted() {
-    	
-  //   	if ( _.has(currentUser, "votes") ) {
-  //   		var userVote = _.findWhere(currentUser.votes, {"itemId": itemId});
-  //   		return (userVote.direction == vote);
-  //   	} else
-  //   	 return false;
-  //   }
+	componentWillReceiveProps: function(nextProps) {
+		if (nextProps.dims)
+			this.setState({
+				preferredDim: (nextProps.dims.height > nextProps.dims.width) ? "height" : "width",
+			});
 	},
 
 	_placeVote: function(voteDirection) {
@@ -101,15 +75,6 @@ var Votes = React.createClass({
 				return undefined;
 		}
 
-		function addVoteToItem(direction) {
-			/*
-				the item's "vote" array will always have "up" &&
-				"down" properties
-			*/
-
-			item.value.votes[direction]++;
-		}
-
 		function addToUserVotes(direction) {
 			var newVote = {
         direction: direction,
@@ -118,6 +83,15 @@ var Votes = React.createClass({
 
     	currentUser.votes.push(newVote);
     	userVoteIndex = currentUser.votes.length - 1;
+		}
+
+		function addVoteToItem(direction) {
+			/*
+				the item's "vote" array will always have "up" &&
+				"down" properties
+			*/
+
+			item.value.votes[direction]++;
 		}
 
 		function subtractVoteFromItem(newDirection) {
@@ -130,20 +104,33 @@ var Votes = React.createClass({
 		}
  	},
 
+ 	_getUserVote: function(userVotes, itemId) {
+		return _.findWhere(userVotes, {"itemId": itemId});
+	},
+
 	render: function() {
+		if (!this.props.dims)
+			return (<View></View>);
+
 		var sizes = {
-			icon: this.props.dims.width / this.state.widthToIconRatio,
-			font: this.props.dims.width / this.state.widthToFontRatio,
+			icon: this.props.dims[this.state.preferredDim] / this.state.widthToIconRatio,
+			font: this.props.dims[this.state.preferredDim] / this.state.widthToFontRatio,
 		};
 
+		var authenticatedUser = this.props.currentUser.value;
+		var userVote;
+
+		if ( _.has(authenticatedUser, "votes") )
+			userVote = this._getUserVote(this.props.currentUser.value.votes, this.props.item.id);
+		
 		return (
-			<View style={styles.container}>
+			<View style={this.props.styles.voteBox}>
 				<TouchableHighlight
 					underlayColor="#A4A4A4"
 					onPress={() => this._placeVote("up")}>
-					<View style={styles.block}>
+					<View style={this.props.styles.voteBlock}>
 						<Icon
-							name="thumbs-o-up"
+							name={(userVote && userVote.direction == "up") ? "thumbs-up" : "thumbs-o-up"}
 							size={sizes.icon}
 							color="#40FF00" />
 						<Text style={{fontSize: sizes.font, color: "#40FF00"}}>
@@ -154,9 +141,9 @@ var Votes = React.createClass({
 				<TouchableHighlight
 					underlayColor="transparent"
 					onPress={() => this._placeVote("down")}>
-					<View style={styles.block}>
+					<View style={this.props.styles.voteBlock}>
 						<Icon
-							name="thumbs-o-down"
+							name={(userVote && userVote.direction == "down") ? "thumbs-down" : "thumbs-o-down"}
 							size={sizes.icon}
 							color="#FF0000" />
 						<Text style={{fontSize: sizes.font, color: "#FF0000"}}>

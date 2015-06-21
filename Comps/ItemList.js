@@ -8,6 +8,7 @@ var Reflux = require("reflux");
 var TimerMixin = require('react-timer-mixin');
 
 // Personal Components
+var Votes = require('./Votes');
 
 // STORES && ACTIONS
 var HostStore = require("../Stores/HostStore");
@@ -63,10 +64,22 @@ var styles = StyleSheet.create({
 	  height: 60,
 	  marginRight: 10,
 	},
+	voteBox: {
+		flexDirection: "row",
+		justifyContent: "flex-start",
+	},
+	voteBlock: {
+		alignItems: "center",
+		flex: 1,
+		flexDirection: "row",
+		justifyContent: "center",
+		marginRight: 10,
+		marginTop: 1,
+	}
 });
 
 var ItemList = React.createClass({
-	mixins: [TimerMixin, Reflux.connect(HostStore)],
+	mixins: [TimerMixin, Reflux.connect(HostStore), Reflux.connect(UserStore)],
 	getInitialState: function() {
 		return {
 			authors: null,
@@ -74,6 +87,7 @@ var ItemList = React.createClass({
 			ds: null,
 			isLoading: true,
 			items: null,
+			itemDims: null,
 		}
 	},
 
@@ -104,6 +118,20 @@ var ItemList = React.createClass({
 		return (!nextState.items || !nextState.items[this.state.context]);
 	},
 
+	_setDims:function(e) {
+		if ( !this.state.itemDims ) {
+			var layout = e.nativeEvent.layout; 
+			
+			this.setState({
+				itemDims: {
+					height: layout.height,
+					width: layout.width,
+				}
+			});
+		} else
+			return;
+	},
+
 	_rowPressed: function(id, item, author) {
 		this.props.route.passProps.openDetailScene(id, item, author);
 	},
@@ -116,7 +144,7 @@ var ItemList = React.createClass({
 				underlayColor="#A4A4A4"
 				onPress={() => this._rowPressed(rowId, item, author)}>
 				
-				<View accessibilityOnTap={false}>
+				<View accessibilityOnTap={false} onLayout={this._setDims}>
 					<View style={styles.rowContainer}>
 						<Image style={styles.thumb} source={{ uri: item.imgURLs.avatar }} />
 						<View style={styles.textContainer}>
@@ -124,6 +152,19 @@ var ItemList = React.createClass({
 							<Text style={styles.author}
 										numberOfLines={1}>{author.firstName} {author.lastName}
 							</Text>
+							<Votes
+								styles={{
+									voteBox: styles.voteBox,
+									voteBlock: styles.voteBlock,
+								}}
+								key={rowId}
+					   		dims={this.state.itemDims}
+					   		currentUser={this.state.authenticatedUser}
+						  	item={{
+						  		id: rowId,
+						  		value: item,
+						  	}}
+						  	db={this.state.db} />
 						</View>
 					</View>
 					<View style={styles.separator} />

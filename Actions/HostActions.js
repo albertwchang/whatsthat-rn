@@ -3,12 +3,11 @@
 var Reflux = require("reflux");
 var HostActions = Reflux.createActions(
 	{
-		"getS3Policy": {
-			children: ["done", "failed"]
-		},
+		"getS3Policy": {asyncResult: true},
 		"setImgHostURL": {
 			children: ["done", "failed"]
-		}
+		},
+		"getDb": {asyncResult: true},
 	}
 );
 
@@ -17,6 +16,10 @@ HostActions.getS3Policy.shouldEmit = (value) => {
 }
 
 HostActions.setImgHostURL.shouldEmit = (value) => {
+	return true;
+}
+
+HostActions.getDb.shouldEmit = (value) => {
 	return true;
 }
 

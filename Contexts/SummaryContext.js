@@ -27,6 +27,7 @@ var UserStore = require("../Stores/UserStore");
 var _ = require("lodash");
 
 var {
+	ListView,
  	Navigator,
  	NavigatorIOS,
 	StyleSheet,
@@ -154,7 +155,9 @@ module.exports = React.createClass({
 	   				authors={this.state.authors}
 	   				context="all"
 	   				dims={this.state.dims}
+	   				ds={new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid})}
 	   				items={this.state.items["all"]}
+	   				openItemContext={this._openItemContext}
 	   				navigator={navigator}
 	   				route={route} />
 			  </View>

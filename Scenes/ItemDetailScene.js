@@ -121,7 +121,7 @@ var styles = StyleSheet.create({
 	},
 });
 
-module.exports = React.createClass({
+var ItemDetailScene = React.createClass({
 	getInitialState: function() {
 		return {
 			dims: this.props.dims,
@@ -205,4 +205,6 @@ module.exports = React.createClass({
 			</ScrollView>
 		);
 	}
-})
+});
+
+module.exports = ItemDetailScene;

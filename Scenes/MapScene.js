@@ -43,8 +43,14 @@ module.exports = React.createClass({
 	getInitialState: function() {
 		return {
 			items: this.props.items,
-			mapParams: this._prepMapParams(this.props.items),
-		}
+			mapParams: null,
+		};
+	},
+
+	componentWillMount: function() {
+		this.setState({
+			mapParams: this._prepMapParams(this.props.items),	
+		});
 	},
 
 	componentDidMount: function() {

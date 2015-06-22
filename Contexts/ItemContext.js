@@ -39,7 +39,7 @@ var styles = StyleSheet.create({
 	},
 })
 
-module.exports = React.createClass({
+var ItemContext = React.createClass({
 	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore), Reflux.connect(UserStore)],
 	getInitialState: function() {
 		return {
@@ -48,6 +48,13 @@ module.exports = React.createClass({
 			dims: this.props.route.passProps.dims,
 			imageDims: null,
 			item: this.props.route.passProps.item,
+			scenes: null,
+			sceneIndex: 0,
+		};
+	},
+
+	componentWillMount: function() {
+		this.setState({
 			scenes: [
 				<ItemDetailScene
 					currentUser={this.state.authenticatedUser}
@@ -61,14 +68,12 @@ module.exports = React.createClass({
    				dims={this.state.dims}
    				items={[this.state.item]} />
 			],
-			sceneIndex: 0,
-		};
+		})
 	},
 
 	_changeScene: function(e) {
-		var nextIndex = e.nativeEvent.selectedSegmentedIndex;
 		this.setState({
-			sceneIndex: 1 - nextIndex,
+			sceneIndex: e.nativeEvent.selectedSegmentedIndex,
 		});
 	},
 
@@ -122,7 +127,6 @@ module.exports = React.createClass({
 
 		var navBar =
 			<NavBar
-				title="Detail"
 				backgroundColor="#A4A4A4"
 				buttonsColor="#FFFFFF"
 				titleColor="#FFFFFF"
@@ -133,9 +137,10 @@ module.exports = React.createClass({
 			<Navigator
 				renderScene={this._renderScene}
 				initialRoute={{
-					component: (this.state.sceneIndex == 0) ? ItemDetailScene : MapScene,
 				  navigationBar: navBar,
 				}} />
 			)
 	}
 });
+
+module.exports = ItemContext;

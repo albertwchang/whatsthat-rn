@@ -78,7 +78,7 @@ var styles = StyleSheet.create({
 	}
 });
 
-module.exports = React.createClass({
+var ItemListScene = React.createClass({
 	mixins: [TimerMixin, Reflux.connect(HostStore), Reflux.connect(UserStore)],
 	getInitialState: function() {
 		return {
@@ -94,7 +94,8 @@ module.exports = React.createClass({
 	componentWillMount: function() {
 		this.setState({
 			context: this.props.context,
-			ds: new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid}),
+			ds: this.props.ds,
+			isLoading: (this.props.items == null) ? true : false,
 		});
 	},
 
@@ -133,7 +134,7 @@ module.exports = React.createClass({
 	},
 
 	_rowPressed: function(id, item, author) {
-		this.props.route.passProps.openItemContext(id, item, author);
+		this.props.openItemContext(id, item, author);
 	},
 
 	_renderRow: function(item, sectionId, rowId) {
@@ -174,7 +175,7 @@ module.exports = React.createClass({
 	},
 
 	render: function() {
-		return this.state.isLoading
+		var view = this.state.isLoading
 			? <ActivityIndicatorIOS
 				animating={this.state.isLoading}
 				style={styles.loading}
@@ -183,5 +184,9 @@ module.exports = React.createClass({
 					dataSource={this.state.ds.cloneWithRows(this.props.items)}
 					style={styles.container}
 					renderRow={this._renderRow} />
+
+		return (view);
 	},
 });
+
+module.exports = ItemListScene;

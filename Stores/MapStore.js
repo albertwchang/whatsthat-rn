@@ -8,17 +8,13 @@ var MapActions = require("../Actions/MapActions");
 // UTILITIES
 var _ = require("lodash");
 
-var MapStore = Reflux.createStore({
+module.exports = Reflux.createStore({
 	listenables: [MapActions],
 	mapConstants: {
 		earthRadius: {
 			value: 6371,
 			measuringUnit: "km"
 		},
-	},
-
-	init: function() {
-
 	},
 
 	getInitialState: function() {
@@ -37,12 +33,8 @@ var MapStore = Reflux.createStore({
 			// }, (err) => {
 			// 	console.log(err);
 			// });
-			debugger;
 		} else {
 			// this.map IS instantiated
 		}
 	},
-})
-
-
-module.exports = MapStore;
+});

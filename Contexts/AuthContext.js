@@ -11,8 +11,8 @@ var Icons = require("react-native-vector-icons");
 var Reflux = require("reflux");
 
 // PERSONAL COMPONENTS
-var LoginComp = require("../Comps/LoginComp");
-var RegisterComp = require("../Comps/RegisterComp");
+var LoginScene = require("../Scenes/LoginScene");
+var RegisterScene = require("../Scenes/RegisterScene");
 
 // ACTIONS && HOSTS
 var HostStore = require("../Stores/HostStore");
@@ -32,7 +32,7 @@ var styles = StyleSheet.create({
   },
 });
 
-var AuthScene = React.createClass({
+module.exports = React.createClass({
 	mixins: [Reflux.connect(HostStore), Reflux.ListenerMixin],
   getInitialState: function() {
     return {
@@ -51,16 +51,12 @@ var AuthScene = React.createClass({
   },
 
   render: function() {
-    var component = (this.state.preferredScene == "login") ? LoginComp : RegisterComp;
-    
     return (
       <Navigator
-        renderScene={this._renderScene.bind(this)}
+        renderScene={this._renderScene}
         initialRoute={{
-          component: component,
+          component: (this.state.preferredScene == "login") ? LoginScene : RegisterScene,
         }} />
     );
   },
 });
-
-module.exports = AuthScene;

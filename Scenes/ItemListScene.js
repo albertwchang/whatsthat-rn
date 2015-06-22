@@ -8,7 +8,7 @@ var Reflux = require("reflux");
 var TimerMixin = require('react-timer-mixin');
 
 // Personal Components
-var Votes = require('./Votes');
+var Votes = require('../Comps/Votes');
 
 // STORES && ACTIONS
 var HostStore = require("../Stores/HostStore");
@@ -53,7 +53,7 @@ var styles = StyleSheet.create({
 	},
 	separator: {
 	  height: 1,
-	  backgroundColor: '#dddddd',
+	  backgroundColor: '#424242',
 	  marginHorizontal: 10,
 	},
 	textContainer: {
@@ -78,7 +78,7 @@ var styles = StyleSheet.create({
 	}
 });
 
-var ItemList = React.createClass({
+var ItemListScene = React.createClass({
 	mixins: [TimerMixin, Reflux.connect(HostStore), Reflux.connect(UserStore)],
 	getInitialState: function() {
 		return {
@@ -94,7 +94,8 @@ var ItemList = React.createClass({
 	componentWillMount: function() {
 		this.setState({
 			context: this.props.context,
-			ds: new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid}),
+			ds: this.props.ds,
+			isLoading: (this.props.items == null) ? true : false,
 		});
 	},
 
@@ -133,7 +134,7 @@ var ItemList = React.createClass({
 	},
 
 	_rowPressed: function(id, item, author) {
-		this.props.route.passProps.openDetailScene(id, item, author);
+		this.props.openItemContext(id, item, author);
 	},
 
 	_renderRow: function(item, sectionId, rowId) {
@@ -174,7 +175,7 @@ var ItemList = React.createClass({
 	},
 
 	render: function() {
-		var scene = this.state.isLoading
+		var view = this.state.isLoading
 			? <ActivityIndicatorIOS
 				animating={this.state.isLoading}
 				style={styles.loading}
@@ -183,8 +184,9 @@ var ItemList = React.createClass({
 					dataSource={this.state.ds.cloneWithRows(this.props.items)}
 					style={styles.container}
 					renderRow={this._renderRow} />
-		return scene;
-	},
-})
 
-module.exports = ItemList;
+		return (view);
+	},
+});
+
+module.exports = ItemListScene;

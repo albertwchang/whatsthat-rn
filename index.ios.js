@@ -6,8 +6,8 @@ var Icons = require("react-native-vector-icons");
 var Reflux = require("reflux");
 
 // PERSONAL COMPONENTS
-var AuthScene = require("./Scenes/AuthScene");
-var AppScene = require("./Scenes/AppScene");
+var AuthContext = require("./Contexts/AuthContext");
+var AppContext = require("./Contexts/AppContext");
 
 // ACTIONS && HOSTS
 var HostStore = require("./Stores/HostStore");
@@ -47,7 +47,7 @@ var App = React.createClass({
   mixins: [Reflux.connect(HostStore), Reflux.connect(UserStore), Reflux.ListenerMixin],
   getInitialState: function() {
     return {
-      sceneLoaded: false,
+      contextLoaded: false,
     };
   },
 
@@ -59,7 +59,7 @@ var App = React.createClass({
       UserActions.fillAuthenticatedUser.triggerPromise(authData.uid).then((user) => {
         this.setState({
           authenticatedUser: user,
-          sceneLoaded: true,
+          contextLoaded: true,
         });
       }).catch((err) => {
         /*
@@ -70,22 +70,22 @@ var App = React.createClass({
     } else {
       this.setState({
         authenticatedUser: "",
-        sceneLoaded: true,
+        contextLoaded: true,
       });
     }
   },
 
   render: function() {
-    var component;
+    var context;
 
     if (this.state.authenticatedUser == null)
-      component = <View><Text>Loading</Text></View>;
+      context = <View><Text>Loading</Text></View>;
     else if ( _.has(this.state.authenticatedUser, "value") )
-      component = <AppScene />;
+      context = <AppContext />;
     else
-      component = <AuthScene />;
+      context = <AuthContext />;
     
-    return (component);
+    return (context);
   },
 });
 

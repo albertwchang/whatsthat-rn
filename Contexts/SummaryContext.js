@@ -5,12 +5,14 @@ var React = require("react-native");
 var Reflux = require("reflux");
 var NavBar = require("react-native-navbar");
 
+// CONTEXTS
+var ItemContext = require("./ItemContext");
+
 // SCENES
-var ItemDetailScene = require("./ItemDetailScene");
+var ItemListScene = require("../Scenes/ItemListScene");
+var MapScene = require("../Scenes/MapScene");
 
 // COMPONENTS
-var MapModule = require("../Comps/MapModule");
-var ItemList = require("../Comps/ItemList");
 var NavItem = require("../Comps/NavItem");
 
 // ACTIONS && STORES
@@ -25,7 +27,7 @@ var UserStore = require("../Stores/UserStore");
 var _ = require("lodash");
 
 var {
-	Component,
+	ListView,
  	Navigator,
  	NavigatorIOS,
 	StyleSheet,
@@ -49,7 +51,7 @@ var styles = StyleSheet.create({
 	}
 });
 
-var SummaryScene = React.createClass({
+module.exports = React.createClass({
 	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore), Reflux.ListenerMixin],
 	getInitialState: function() {
 		return {
@@ -58,8 +60,7 @@ var SummaryScene = React.createClass({
 			authorIds: [],
 			authors: [],
 			userObtained: true,
-			listScene: false,
-			scene: ItemList,
+			listScene: true,
 		};
 	},
 
@@ -117,9 +118,9 @@ var SummaryScene = React.createClass({
 			return;
   },
 
-  _openItemDetail: function(id, item, author) {
+  _openItemContext: function(id, item, author) {
   	var route = {
-		  component: ItemDetailScene,
+		  component: ItemContext,
 		  passProps: {
 		  	author: author,
 		  	context: "all",
@@ -135,7 +136,6 @@ var SummaryScene = React.createClass({
   },
 
 	_renderScene: function(route, navigator) {
-		var Scene = this.state.scene;
 		var navBar = null;
 
 		if (route.navigationBar) {
@@ -145,16 +145,21 @@ var SummaryScene = React.createClass({
 		 	});
 		}
 
+		var Scene = this.state.listScene ? ItemListScene : MapScene;
+
 		return (
 			<View style={styles.container}>
 		   	{navBar}
 		   	<View style={styles.main} onLayout={this._setDims}>
-			   	<Scene navigator={navigator}
-			   				authors={this.state.authors}
-			   				context="all"
-			   				dims={this.state.dims}
-			   				items={this.state.items["all"]}
-			   				route={route} />
+			   	<Scene
+	   				authors={this.state.authors}
+	   				context="all"
+	   				dims={this.state.dims}
+	   				ds={new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid})}
+	   				items={this.state.items["all"]}
+	   				openItemContext={this._openItemContext}
+	   				navigator={navigator}
+	   				route={route} />
 			  </View>
 			</View>
 		);
@@ -162,8 +167,7 @@ var SummaryScene = React.createClass({
 
 	_changeScene: function() {
 		this.setState({
-			listScene: !this.state.listScene,
-			scene: this.state.listScene ? MapModule : ItemList
+			listScene: !this.state.listScene
 		});
 	},
 
@@ -181,16 +185,14 @@ var SummaryScene = React.createClass({
 							customPrev={navItem} />
 
 		return (
-			<Navigator renderScene={this._renderScene}
-								initialRoute={{
-								  component: this.state.scene,
-								  navigationBar: navBar,
-								  passProps: {
-								  	openDetailScene: this._openItemDetail,
-								  },
-								}} />
+			<Navigator
+				renderScene={this._renderScene}
+				initialRoute={{
+				  navigationBar: navBar,
+				  passProps: {
+				  	openItemContext: this._openItemContext,
+				  },
+				}} />
 			)
 	}
 });
-
-module.exports = SummaryScene;

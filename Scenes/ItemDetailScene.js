@@ -7,7 +7,7 @@ var NavBar = require("react-native-navbar");
 var Carousel = require("react-native-carousel");
 
 // COMPONENTS
-var MapModule = require("../Comps/MapModule");
+var NavBarTitle = require("../Comps/NavBarTitle");
 var NavItem = require("../Comps/NavItem");
 var Votes = require("../Comps/Votes");
 
@@ -19,30 +19,32 @@ var HostStore = require("../Stores/HostStore");
 var UserActions = require("../Actions/UserActions");
 var UserStore = require("../Stores/UserStore");
 
+// VIEWS
+var MapScene = require("../Scenes/MapScene");
+
 // Utilities
 var _ = require("lodash");
 
 var {
 	Image,
  	Navigator,
- 	SegmentedControlIOS,
+ 	ScrollView,
 	StyleSheet,
-	TabBarIOS,
 	Text,
+	TouchableHighlight,
 	View,
 } = React;
 
 var styles = StyleSheet.create({
-	container: {
-		flex: 1,
+	authorSection: {
+	  flexDirection: 'row',
 	},
-	navBarTitle: {
-		backgroundColor: "blue",
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	main: {
+	authorName: {
+		color: "#FF0000",
 		flex: 1,
+		fontFamily: "Helvetica Neue",
+		fontSize: 16,
+		fontWeight: "bold",
 	},
 	box: {
 		width: 300,
@@ -52,16 +54,61 @@ var styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#6699FF',
   },
-  image: {
-
+	desc: {
+		fontFamily: "Helvetica Neue",
+		fontSize: 17,
+		fontWeight: "300",
   },
+	itemMeta: {
+		color: "#FF0000",
+		flex: 1,
+		fontFamily: "Helvetica Neue",
+		fontSize: 14,
+	},
+	navBarTitle: {
+		backgroundColor: "blue",
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	main: {
+		flex: 1,
+		margin: 12,
+	},
+  image: {
+  	flex: 1,
+  	height: 500,
+  },
+  name: {
+		fontFamily: "Helvetica Neue",
+		fontSize: 20,
+		fontWeight: "bold",
+  },
+  scrollView: {
+  	flex: 1,
+  },
+  separator: {
+	  height: 1,
+	  backgroundColor: '#424242',
+	  marginHorizontal: 4,
+	},
 	text: {
 		color: "#FFFFFF"
 	},
+	textContainer: {
+	  flex: 1
+	},
+	thumb: {
+	  width: 80,
+	  height: 60,
+	  marginRight: 10,
+	},
 	voteBox: {
-		flexDirection: "row",
-		margin: 3,
 		alignItems: "center",
+		backgroundColor: "#FFFFFF",
+		borderColor: "#A4A4A4",
+		borderRadius: 5,
+		borderWidth: 1,
+		flexDirection: "row",
 		justifyContent: "center",
 	},
 	voteBlock: {
@@ -74,48 +121,52 @@ var styles = StyleSheet.create({
 	},
 });
 
-var ItemDetailScene = React.createClass({
-	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore), Reflux.connect(UserStore)],
+module.exports = React.createClass({
 	getInitialState: function() {
 		return {
-			author: this.props.route.passProps.author,
-			dims: this.props.route.passProps.dims,
-			item: this.props.route.passProps.item,
-			context: this.props.route.passProps.context,
+			dims: this.props.dims,
+			imageDims: null,
 		};
 	},
 
-	_renderScene: function(route, navigator) {
+	_getDims: function(e) {
+		this.setState({
+			imageDims: e.nativeEvent.layout
+		});
+	},
+
+	_openProfile: function(userId) {
+		console.log("user: ", userId);
+	},
+
+	render: function() {
 		var navBar = null;
-		var imgURL = this.state.item.value.imgURLs.base;
+		var item = this.props.item.value;
+		var author = this.props.author;
+		var imgDims = this.state.imageDims;
 		var imgStyle = {
-			width: this.state.dims.width,
-			flex: 1,
-	    justifyContent: 'center',
-	    alignItems: 'center',
+			alignItems: 'center',
 	    backgroundColor: '#6699FF',
+	    flex: 1,
+	    height: _.has(imgDims, "width") ? imgDims.width * 3/4 : 0,
+	    justifyContent: 'center',
+	    resizeMode: "contain",
+	    width: this.props.dims.width,
 	  };
 
-		if (route.navigationBar) {
-		 	navBar = React.addons.cloneWithProps(route.navigationBar, {
-		  	navigator: navigator,
-		  	route: route
-		 	});
-
-		 	navBar._store.props.onPrev = function() {
-		 		this.props.navigator.pop();
-			}.bind(this);
-		}
-
 		return (
-			<View style={styles.container}>
-		   	{navBar}
-		   	<Carousel width={this.state.dims.width}>
-	          <Image
-	          	style={imgStyle}
-	          	source={{ uri: imgURL }} />
+	   	<ScrollView
+	   		contentInset={{top: -20}}
+        scrollEventThrottle={200}>
+		   	<Carousel>
+          <Image
+          	onLayout={this._getDims}
+          	style={imgStyle}
+          	source={{ uri: item.imgURLs.base }} />
 	        <View style={imgStyle}>
-	          <Text style={styles.text}>Image 2</Text>
+	          <Text
+	          	style={styles.text}>Image 2
+	          </Text>
 	        </View>
 	        <View style={imgStyle}>
 	          <Text style={styles.text}>Image 3</Text>
@@ -127,61 +178,31 @@ var ItemDetailScene = React.createClass({
 							voteBox: styles.voteBox,
 							voteBlock: styles.voteBlock,
 						}}
-			   		dims={this.state.dims}
-			   		currentUser={this.state.authenticatedUser}
-				  	item={this.state.item}
-				  	db={this.state.db} />
+			   		dims={this.props.dims}
+			   		currentUser={this.props.currentUser}
+				  	item={this.props.item}
+				  	db={this.props.db} />
+				</View>
+				<View style={styles.main}>
+				  <Text style={styles.name}>{item.name}</Text>
+				  <Text style={styles.desc}>{item.desc}</Text>
+				</View>
+				<View style={styles.separator} />
+				<View style={styles.main}>
+				  <TouchableHighlight
+						underlayColor="#A4A4A4"
+						onPress={() => this._openProfile(author.key)}>
+						<View style={styles.authorSection}>
+							<Image style={styles.thumb} source={{ uri: author.imgURLs.avatar }} />
+							<View style={styles.textContainer}>
+								<Text style={styles.authorName}>{author.firstName} {author.lastName}</Text>
+								<Text style={styles.itemMeta}>Date</Text>
+								<Text style={styles.itemMeta}>City, State</Text>
+							</View>
+						</View>
+					</TouchableHighlight>
 			  </View>
-			</View>
+			</ScrollView>
 		);
-	},
-
-	_changeScene: function(navigator) {
-		this.setState({
-			listScene: !this.state.listScene,
-			scene: this.state.listScene ? MapModule : ItemList
-		});
-	},
-
-	render: function() {
-		var navBarTitle = <NavBarTitle width={this.state.dims.width} />;
-
-		var navBar =
-			<NavBar
-				title="Detail"
-				backgroundColor="#A4A4A4"
-				buttonsColor="#FFFFFF"
-				titleColor="#FFFFFF"
-				prevTitle="Back"
-				customTitle={navBarTitle} />
-
-		return (
-			<Navigator
-				renderScene={this._renderScene}
-				initialRoute={{
-				  navigationBar: navBar,
-				}} />
-			)
 	}
-});
-
-var NavBarTitle = React.createClass({
-	render: function() {
-		var navBarStyle = {
-			justifyContent: "center",
-			alignItems: "center",
-			width: this.props.width * 6/10,
-		};
-
-		return (
-				<SegmentedControlIOS
-					style={navBarStyle}
-					enabled={true}
-					values={["Details", "Map"]}
-					selectedIndex={0}
-					tintColor="red" />
-		)
-	}
-});
-
-module.exports = ItemDetailScene;
+})

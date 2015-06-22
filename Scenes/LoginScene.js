@@ -3,7 +3,7 @@
 var React = require("react-native");
 var Icons = require("react-native-vector-icons");
 var Reflux = require("reflux");
-var AppScene = require("../Scenes/AppScene");
+var AppContext = require("../Contexts/AppContext");
 
 // ACTIONS && HOSTS
 var HostStore = require("../Stores/HostStore");
@@ -56,7 +56,7 @@ var LoginComp = React.createClass({
 		this.state.db.authWithPassword(this.state.creds, (err, authData) => {
 			if (authData) {
 				var route = {
-					component: AppScene,
+					component: AppContext,
 				};
 				
 				this.setState({
@@ -91,8 +91,8 @@ var LoginComp = React.createClass({
 	render: function() {
 		return (
 			<View style={styles.container}>
-				<TextInput onChange={this._updateEmail.bind(this)} style={styles.input} />
-				<TextInput onChange={this._updatepassword.bind(this)} style={styles.input} />
+				<TextInput onChange={this._updateEmail} style={styles.input} />
+				<TextInput onChange={this._updatepassword} style={styles.input} />
 				<TouchableHighlight onPress={ () => { this._processLogin({navigator}) } }>
 					<Text style={styles.buttonText}>Go</Text>
 				</TouchableHighlight>

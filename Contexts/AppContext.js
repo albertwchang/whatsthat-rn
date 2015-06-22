@@ -5,7 +5,7 @@ var React = require("react-native");
 var Reflux = require("reflux");
 
 // SCENES
-var SummaryScene = require("../Scenes/SummaryScene");
+var SummaryContext = require("./SummaryContext");
 
 // ACTIONS && STORES
 var HostActions = require("../Actions/HostActions");
@@ -25,7 +25,7 @@ var {
 var styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#000000",
+		backgroundColor: "#EFEFFB",
 	},
 	navBar: {
 		backgroundColor: "#A4A4A4"
@@ -35,7 +35,7 @@ var styles = StyleSheet.create({
 	}
 });
 
-var AppScene = React.createClass({
+module.exports = React.createClass({
 	getInitialState: function() {
 		return {
 			chosenTab: "main",
@@ -64,43 +64,43 @@ var AppScene = React.createClass({
 		});
 	},
 
-	_renderScene: function(route, navigator) {
-		var Scene = route.component;
+	_renderContext: function(route, navigator) {
+		var Context = route.component;
 		var navBar = null;
 
 		return (
 	   	<View style={styles.container}>
-		  	<Scene
+		  	<Context
 		   		navigator={navigator}
 		   		route={route} />
 		  </View>
 		);
 	},
 
-	_renderContent: function() {
-		var component = null;
+	_routeContext: function() {
+		var context = null;
 		switch(this.state.chosenTab) {
 			case "main":
-				component = SummaryScene;
+				context = SummaryContext;
 			
 			case "add":
-				component = SummaryScene;
+				context = SummaryContext;
 
 			case "profile":
-				component = SummaryScene;
+				context = SummaryContext;
 
 			case "settings":
-				component = SummaryScene;
+				context = SummaryContext;
 
 			default:
-				component = SummaryScene;
+				context = SummaryContext;
 		}
 
 		return (
 			<Navigator
-				renderScene={this._renderScene.bind(this)}
+				renderScene={this._renderContext}
 				initialRoute={{
-				  component: component,
+				  component: context,
 				}} />
 		);
 	},
@@ -119,7 +119,7 @@ var AppScene = React.createClass({
 					  });
 					}}
 					selected={this.state.chosenTab === 'main'}
-					title="Items">{this._renderContent(this.props.navigator)}
+					title="Items">{this._routeContext(this.props.navigator)}
         </TabBarIOS.Item>
         
         <TabBarIOS.Item
@@ -132,7 +132,7 @@ var AppScene = React.createClass({
             });
           }}
           selected={this.state.chosenTab === "add"}
-          title="Add">{this._renderContent()}
+          title="Add">{this._routeContext()}
         </TabBarIOS.Item>
         
         <TabBarIOS.Item
@@ -144,7 +144,7 @@ var AppScene = React.createClass({
             });
           }}
           selected={this.state.chosenTab === 'profile'}
-          title="Profile">{this._renderContent()}
+          title="Profile">{this._routeContext()}
         </TabBarIOS.Item>
 
         <TabBarIOS.Item
@@ -156,11 +156,9 @@ var AppScene = React.createClass({
             });
           }}
           selected={this.state.chosenTab === 'settings'}
-          title="Settings">{this._renderContent()}
+          title="Settings">{this._routeContext()}
         </TabBarIOS.Item>
       </TabBarIOS>
 		);
 	}
 });
-
-module.exports = AppScene;

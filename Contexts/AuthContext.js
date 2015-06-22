@@ -32,7 +32,7 @@ var styles = StyleSheet.create({
   },
 });
 
-module.exports = React.createClass({
+var AuthContext = React.createClass({
 	mixins: [Reflux.connect(HostStore), Reflux.ListenerMixin],
   getInitialState: function() {
     return {
@@ -60,3 +60,5 @@ module.exports = React.createClass({
     );
   },
 });
+
+module.exports = AuthContext;

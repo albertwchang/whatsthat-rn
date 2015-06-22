@@ -51,7 +51,7 @@ var styles = StyleSheet.create({
 	}
 });
 
-module.exports = React.createClass({
+var SummaryContext = React.createClass({
 	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore), Reflux.ListenerMixin],
 	getInitialState: function() {
 		return {
@@ -172,17 +172,17 @@ module.exports = React.createClass({
 	},
 
 	render: function() {
-		var navItem = <NavItem
+		var prevNavItem = <NavItem
 										type="text"
 										name="Map"
 										changeScene={this._changeScene} />;
-
 		var navBar =
-			<NavBar title="All Items"
-							backgroundColor="#A4A4A4"
-							buttonsColor="#FFFFFF"
-							titleColor="#FFFFFF"
-							customPrev={navItem} />
+			<NavBar
+				title="All Items"
+				backgroundColor="#A4A4A4"
+				buttonsColor="#FFFFFF"
+				titleColor="#FFFFFF"
+				customPrev={prevNavItem} />
 
 		return (
 			<Navigator
@@ -196,3 +196,5 @@ module.exports = React.createClass({
 			)
 	}
 });
+
+module.exports = SummaryContext;

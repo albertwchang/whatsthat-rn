@@ -5,6 +5,7 @@ var React = require("react-native");
 var Reflux = require("reflux");
 
 // SCENES
+var ProfileContext = require("./ProfileContext");
 var SummaryContext = require("./SummaryContext");
 
 // ACTIONS && STORES
@@ -35,7 +36,7 @@ var styles = StyleSheet.create({
 	}
 });
 
-module.exports = React.createClass({
+var AppContext = React.createClass({
 	getInitialState: function() {
 		return {
 			chosenTab: "main",
@@ -77,23 +78,29 @@ module.exports = React.createClass({
 		);
 	},
 
-	_routeContext: function() {
+	_routeContext: function(navigator) {
 		var context = null;
+
 		switch(this.state.chosenTab) {
 			case "main":
 				context = SummaryContext;
+				break;
 			
 			case "add":
 				context = SummaryContext;
+				break;
 
 			case "profile":
-				context = SummaryContext;
+				context = ProfileContext;
+				break;
 
 			case "settings":
 				context = SummaryContext;
+				break;
 
 			default:
 				context = SummaryContext;
+				break;
 		}
 
 		return (
@@ -119,7 +126,8 @@ module.exports = React.createClass({
 					  });
 					}}
 					selected={this.state.chosenTab === 'main'}
-					title="Items">{this._routeContext(this.props.navigator)}
+					title="Items">
+						{this.state.chosenTab == "main" ? this._routeContext("main") : ""}
         </TabBarIOS.Item>
         
         <TabBarIOS.Item
@@ -132,7 +140,8 @@ module.exports = React.createClass({
             });
           }}
           selected={this.state.chosenTab === "add"}
-          title="Add">{this._routeContext()}
+          title="Add">
+          	{this.state.chosenTab == "add" ? this._routeContext("add") : ""}
         </TabBarIOS.Item>
         
         <TabBarIOS.Item
@@ -144,7 +153,8 @@ module.exports = React.createClass({
             });
           }}
           selected={this.state.chosenTab === 'profile'}
-          title="Profile">{this._routeContext()}
+          title="Profile">
+          	{this.state.chosenTab == "profile" ? this._routeContext("profile") : ""}
         </TabBarIOS.Item>
 
         <TabBarIOS.Item
@@ -156,9 +166,12 @@ module.exports = React.createClass({
             });
           }}
           selected={this.state.chosenTab === 'settings'}
-          title="Settings">{this._routeContext()}
+          title="Settings">
+          	{this.state.chosenTab == "settings" ? this._routeContext("settings") : ""}
         </TabBarIOS.Item>
       </TabBarIOS>
 		);
 	}
 });
+
+module.exports = AppContext;

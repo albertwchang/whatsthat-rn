@@ -5,25 +5,29 @@ var React = require("react-native");
 var Reflux = require("reflux");
 var NavBar = require("react-native-navbar");
 
+// CONTEXTS
+var ItemContext = require("./ItemContext");
+
 // SCENES
-var ItemDetailScene = require("../Scenes/ItemDetailScene");
+var ItemListScene = require("../Scenes/ItemListScene");
+var MapScene = require("../Scenes/MapScene");
 
 // COMPONENTS
-var MapModule = require("../Comps/MapModule");
-var ItemList = require("../Comps/ItemList");
 var NavItem = require("../Comps/NavItem");
 
 // ACTIONS && STORES
-var ItemActions = require("../Actions/ItemActions");
-var ItemStore = require("../Stores/ItemStore");
 var HostActions = require("../Actions/HostActions");
 var HostStore = require("../Stores/HostStore");
+var ItemActions = require("../Actions/ItemActions");
+var ItemStore = require("../Stores/ItemStore");
+var UserActions = require("../Actions/UserActions");
+var UserStore = require("../Stores/UserStore");
 
 // Utilities
 var _ = require("lodash");
 
 var {
-	Component,
+	ListView,
  	Navigator,
  	NavigatorIOS,
 	StyleSheet,
@@ -47,62 +51,45 @@ var styles = StyleSheet.create({
 	}
 });
 
-var MainScene = React.createClass({
-	mixins: [Reflux.connect(HostStore)],
+var SummaryContext = React.createClass({
+	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore), Reflux.ListenerMixin],
 	getInitialState: function() {
 		return {
 			dims: null,
-			items: null,
 			itemsObtained: false,
 			authorIds: [],
 			authors: [],
 			userObtained: true,
-			listScene: false,
-			scene: ItemList,
+			listScene: true,
 		};
 	},
 
 	componentWillMount: function() {
 		var authorIds = null;
-		var items = null;
+		var items = [];
 	
 		// get items and authors data from respective stores
 		var itemQuery = this.state.db.child("items");
 
-		var qItems = new Promise((resolve, reject) => {
-			itemQuery.once("value", (data) => {
-				resolve(items = data.val());
-			}, (err) => {
-				console.log(err);
-				reject(err);
-			});
-		});
-
-		qItems.then((items) => {
-			authorIds = _.uniq( _.pluck(items, "authorId") );
-			return authorIds
+		ItemActions.getItems.triggerPromise("items", "all").then((_items) => {
+			items['all'] = _items;
+			authorIds = _.uniq( _.pluck(items["all"], "authorId") );
+			return authorIds;
 		}).then((authorIds) => {
-			var query = this.state.db.child("users");
-			var qAuthors = new Promise((resolve, rejected) => {
-				query.once("value", (data) => {
-					var authors = _.transform(data.val(), (result, author, key) => {
-						if ( _.contains(authorIds, key) )
-							result[key] = author;
-					});
+			return UserActions.getUsers.triggerPromise("users", "all").then((users) => {
+				var authors = _.transform(users, (result, author, key) => {
+					if ( _.contains(authorIds, key) )
+						result[key] = author;
+				});
 
-					resolve(authors);
-				}, (err) => {
-					reject(err);
-				});	
-			})
-			
-			return qAuthors;
+				return authors;
+			});
 		}).finally((authors) => {
 			/*******************************************************************
 			***************** Finally, process all obtained data ***************
 			*******************************************************************/
 			this.setState({
-				items: items,
+				items: items, /* LOOK INTO THIS LATER, SO IT DOESN'T ERASE OTHER ELEMENTS*/
 				itemsObtained: true,
 				authors: authors,
 				authorIds: authorIds,
@@ -112,8 +99,9 @@ var MainScene = React.createClass({
 		});
 	},
 
-	componentDidMount: function() {
-
+	componentWillUpdate: function(nextProps, nextState) {
+		if (nextState.items["all"] != null);
+			// debugger;
 	},
 	
 	_setDims: function(e) {
@@ -130,24 +118,24 @@ var MainScene = React.createClass({
 			return;
   },
 
-  _openItemDetail: function(id, item, author) {
+  _openItemContext: function(id, item, author) {
   	var route = {
-		  component: ItemDetailScene,
+		  component: ItemContext,
 		  passProps: {
+		  	author: author,
+		  	context: "all",
 		  	dims: this.state.dims,
 		  	item: {
 		  		id: id,
 		  		value: item,
 		  	},
-		  	author: author,
 		  }
 		};
 
-  	this.props.navigator.push(route)
+  	this.props.navigator.push(route);
   },
 
 	_renderScene: function(route, navigator) {
-		var Scene = this.state.scene;
 		var navBar = null;
 
 		if (route.navigationBar) {
@@ -157,52 +145,56 @@ var MainScene = React.createClass({
 		 	});
 		}
 
+		var Scene = this.state.listScene ? ItemListScene : MapScene;
+
 		return (
 			<View style={styles.container}>
 		   	{navBar}
 		   	<View style={styles.main} onLayout={this._setDims}>
-			   	<Scene navigator={navigator}
-			   				dims={this.state.dims}
-			   				route={route}
-			   				authors={this.state.authors}
-			   				items={this.state.items}
-			   				{...this.props.route.passProps} />
+			   	<Scene
+	   				authors={this.state.authors}
+	   				context="all"
+	   				dims={this.state.dims}
+	   				ds={new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid})}
+	   				items={this.state.items["all"]}
+	   				openItemContext={this._openItemContext}
+	   				navigator={navigator}
+	   				route={route} />
 			  </View>
 			</View>
 		);
 	},
 
-	_changeScene: function(navigator) {
+	_changeScene: function() {
 		this.setState({
-			listScene: !this.state.listScene,
-			scene: this.state.listScene ? MapModule : ItemList
+			listScene: !this.state.listScene
 		});
 	},
 
 	render: function() {
-		var navItem = <NavItem
+		var prevNavItem = <NavItem
 										type="text"
 										name="Map"
-										changeScene={this._changeScene.bind(this)} />;
-
+										changeScene={this._changeScene} />;
 		var navBar =
-			<NavBar title="All Items"
-							backgroundColor="#A4A4A4"
-							buttonsColor="#FFFFFF"
-							titleColor="#FFFFFF"
-							customPrev={navItem} />
+			<NavBar
+				title="All Items"
+				backgroundColor="#A4A4A4"
+				buttonsColor="#FFFFFF"
+				titleColor="#FFFFFF"
+				customPrev={prevNavItem} />
 
 		return (
-			<Navigator renderScene={this._renderScene.bind(this)}
-								initialRoute={{
-								  component: this.state.scene,
-								  navigationBar: navBar,
-								  passProps: {
-								  	openDetailScene: this._openItemDetail,
-								  },
-								}} />
+			<Navigator
+				renderScene={this._renderScene}
+				initialRoute={{
+				  navigationBar: navBar,
+				  passProps: {
+				  	openItemContext: this._openItemContext,
+				  },
+				}} />
 			)
 	}
 });
 
-module.exports = MainScene;
+module.exports = SummaryContext;

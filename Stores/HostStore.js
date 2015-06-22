@@ -32,7 +32,7 @@ var HostStore = Reflux.createStore({
 	},
 
 	onGetDb: function() {
-		HostActions.getDb.done("tesing.");
+		HostActions.getDb.completed(this.hosts.db);
 	},
 
 	onGetS3Policy: function() {

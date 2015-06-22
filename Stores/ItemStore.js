@@ -4,11 +4,11 @@ var Reflux = require("reflux");
 
 // STORES && ACTIONS
 var ItemActions = require("../Actions/ItemActions");
-var UserActions = require("../Actions/UserActions");
 var HostActions = require("../Actions/HostActions");
 var HostStore = require("./HostStore");
 
 // UTILITIES
+var _ = require("lodash");
 
 var ItemStore = Reflux.createStore({
 	listenables: [ItemActions],
@@ -34,21 +34,29 @@ var ItemStore = Reflux.createStore({
 		this.listenTo(HostStore, this._updateDb, this._updateDb);
 	},
 
-	onGetItems: function(query, type) {
+	onGetItems: function(query, type) {		
 		// check "recentQuery" variable.  Exists => don't pull data
 		if (query == this.recentQueries[type])
-			return ItemStore.getItems.done(this.items[type]);
+			return ItemActions.getItems.completed(this.items[type]);
 		else {
 			/*******************************************************************
 			************************* Use one-time data pull *******************
 			*******************************************************************/
-			
-			// obtain ITEMS
-			var ref = this.db.child(query);
-			ref.once("value", (data) => {
-				ItemActions.getItems.done( this.items[type] = data.val() );
+			var dbRef = this.db.child(query);
+			dbRef.once("value", (data) => {
+				ItemActions.getItems.completed( this.items[type] = data.val() );
 			}, (err) => {
 				ItemActions.getItems.failed(err);
+			});
+
+			// LISTEN TO CHANGES TO ANY ITEM
+			dbRef.on("child_changed", (data) => {
+				var key = data.key();
+
+				if ( _.has(this.items[type], key) ) {
+					this.items[type][key] = data.val();
+					this.trigger({items: this.items});
+				}
 			});
 		}
 	},

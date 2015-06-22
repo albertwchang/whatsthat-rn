@@ -3,7 +3,6 @@
 var React = require("react-native");
 var Icons = require("react-native-vector-icons");
 var Reflux = require("reflux");
-var AppContext = require("../Contexts/AppContext");
 
 // ACTIONS && HOSTS
 var HostStore = require("../Stores/HostStore");
@@ -24,13 +23,11 @@ var styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		alignItems: 'center',
 		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: '#000000',
 		paddingRight: 25,
 		paddingLeft: 25,
-		borderWidth: 1,
-		borderColor: "red",
-    backgroundColor: "#000000",
 	},
 	input: {
 		height: 40,
@@ -40,7 +37,7 @@ var styles = StyleSheet.create({
 	}
 });
 
-var LoginComp = React.createClass({
+var RegisterComp = React.createClass({
 	mixins: [Reflux.connect(HostStore)],
 	
 	componentWillMount: function() {
@@ -55,16 +52,29 @@ var LoginComp = React.createClass({
 	_processLogin: function(event) {
 		this.state.db.authWithPassword(this.state.creds, (err, authData) => {
 			if (authData) {
+				console.log("authenticated");
 				var route = {
-					component: AppContext,
-				};
+					component: SummaryScene,
+					passProps: {
+						user: authData
+					}
+				}
+
+
+				debugger;
+
+
+
 				
 				this.setState({
 					isLoggedIn: true
 				});
 
+				
+
 				this.props.navigator.replace(route);
 			} else {
+				debugger;
 				console.log("Error logging in...");
 			}
 		});
@@ -91,14 +101,10 @@ var LoginComp = React.createClass({
 	render: function() {
 		return (
 			<View style={styles.container}>
-				<TextInput onChange={this._updateEmail} style={styles.input} />
-				<TextInput onChange={this._updatepassword} style={styles.input} />
-				<TouchableHighlight onPress={ () => { this._processLogin({navigator}) } }>
-					<Text style={styles.buttonText}>Go</Text>
-				</TouchableHighlight>
+				<Text>This is the Registration Component</Text>
 			</View>
 		);
 	}
 })
 
-module.exports = LoginComp;
+module.exports = RegisterComp;

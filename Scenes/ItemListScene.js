@@ -8,6 +8,7 @@ var Reflux = require("reflux");
 var TimerMixin = require('react-timer-mixin');
 
 // Personal Components
+var Votes = require('../Comps/Votes');
 
 // STORES && ACTIONS
 var HostStore = require("../Stores/HostStore");
@@ -52,7 +53,7 @@ var styles = StyleSheet.create({
 	},
 	separator: {
 	  height: 1,
-	  backgroundColor: '#dddddd',
+	  backgroundColor: '#424242',
 	  marginHorizontal: 10,
 	},
 	textContainer: {
@@ -63,22 +64,38 @@ var styles = StyleSheet.create({
 	  height: 60,
 	  marginRight: 10,
 	},
+	voteBox: {
+		flexDirection: "row",
+		justifyContent: "flex-start",
+	},
+	voteBlock: {
+		alignItems: "center",
+		flex: 1,
+		flexDirection: "row",
+		justifyContent: "center",
+		marginRight: 10,
+		marginTop: 1,
+	}
 });
 
-var ItemList = React.createClass({
-	mixins: [TimerMixin, Reflux.connect(HostStore)],
+var ItemListScene = React.createClass({
+	mixins: [TimerMixin, Reflux.connect(HostStore), Reflux.connect(UserStore)],
 	getInitialState: function() {
 		return {
+			authors: null,
+			context: null,
 			ds: null,
 			isLoading: true,
-			authors: null,
 			items: null,
+			itemDims: null,
 		}
 	},
 
 	componentWillMount: function() {
 		this.setState({
-			ds: new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid}),
+			context: this.props.context,
+			ds: this.props.ds,
+			isLoading: (this.props.items == null) ? true : false,
 		});
 	},
 
@@ -98,8 +115,26 @@ var ItemList = React.createClass({
 		});
 	},
 
+	shouldComponentUpdate: function(nextProps, nextState) {
+		return (!nextState.items || !nextState.items[this.state.context]);
+	},
+
+	_setDims:function(e) {
+		if ( !this.state.itemDims ) {
+			var layout = e.nativeEvent.layout; 
+			
+			this.setState({
+				itemDims: {
+					height: layout.height,
+					width: layout.width,
+				}
+			});
+		} else
+			return;
+	},
+
 	_rowPressed: function(id, item, author) {
-		this.props.route.passProps.openDetailScene(id, item, author);
+		this.props.openItemContext(id, item, author);
 	},
 
 	_renderRow: function(item, sectionId, rowId) {
@@ -110,14 +145,27 @@ var ItemList = React.createClass({
 				underlayColor="#A4A4A4"
 				onPress={() => this._rowPressed(rowId, item, author)}>
 				
-				<View accessibilityOnTap={false}>
+				<View accessibilityOnTap={false} onLayout={this._setDims}>
 					<View style={styles.rowContainer}>
-						{<Image style={styles.thumb} source={{ uri: item.imgURLs.avatar }} />}
+						<Image style={styles.thumb} source={{ uri: item.imgURLs.avatar }} />
 						<View style={styles.textContainer}>
 							<Text style={styles.itemName}>{item.name}</Text>
 							<Text style={styles.author}
 										numberOfLines={1}>{author.firstName} {author.lastName}
 							</Text>
+							<Votes
+								styles={{
+									voteBox: styles.voteBox,
+									voteBlock: styles.voteBlock,
+								}}
+								key={rowId}
+					   		dims={this.state.itemDims}
+					   		currentUser={this.state.authenticatedUser}
+						  	item={{
+						  		id: rowId,
+						  		value: item,
+						  	}}
+						  	db={this.state.db} />
 						</View>
 					</View>
 					<View style={styles.separator} />
@@ -127,7 +175,7 @@ var ItemList = React.createClass({
 	},
 
 	render: function() {
-		var scene = this.state.isLoading
+		var view = this.state.isLoading
 			? <ActivityIndicatorIOS
 				animating={this.state.isLoading}
 				style={styles.loading}
@@ -136,8 +184,9 @@ var ItemList = React.createClass({
 					dataSource={this.state.ds.cloneWithRows(this.props.items)}
 					style={styles.container}
 					renderRow={this._renderRow} />
-		return scene;
-	},
-})
 
-module.exports = ItemList;
+		return (view);
+	},
+});
+
+module.exports = ItemListScene;

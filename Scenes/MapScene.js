@@ -2,13 +2,10 @@
 
 // React Native Parts
 var React = require('react-native');
-var Carousel = require('react-native-carousel');
-var Icons = require("react-native-vector-icons");
-var MapBox = require("react-native-mapbox-gl");
 var Reflux = require("reflux");
 var TimerMixin = require('react-timer-mixin');
 
-// Personal Components
+// PERSONAL COMPONENTS
 
 // STORES && ACTIONS
 var MapStore = require("../Stores/MapStore");
@@ -41,25 +38,18 @@ var styles = StyleSheet.create({
 	}
 })
 
-var MapModule = React.createClass({
+var MapScene = React.createClass({
 	mixins: [Reflux.connect(MapStore), Reflux.ListenerMixin],
 	getInitialState: function() {
 		return {
-			items: null,
-			mapParams: null
-		}
+			items: this.props.items,
+			mapParams: null,
+		};
 	},
 
 	componentWillMount: function() {
-		var items = this.props.items;
-		var _mapParams = null;
-
-		if (items != null) {
-			_mapParams = this._prepMapParams(items);
-		}
-
 		this.setState({
-			mapParams: _mapParams
+			mapParams: this._prepMapParams(this.props.items),	
 		});
 	},
 
@@ -68,17 +58,11 @@ var MapModule = React.createClass({
 	},
 
 	componentWillReceiveProps: function(nextProps) {
-		var _mapParams = null;
-		
 		if (nextProps.items != null) {
-			_mapParams = _prepMapParams(items);
-		}	else {
-
+			this.setState({
+				mapParams: this._prepMapParams(nextProps.items),
+			});
 		}
-
-		this.setState({
-			mapParams: _mapParams
-		})
 	},
 
 	componentWillUpdate: function(nextProps, nextState) {
@@ -173,7 +157,6 @@ var MapModule = React.createClass({
 			return _.values(geoPoint);
 		});
 
-		debugger;
 		return GetBounds(rawGeoPoints);
 	},
 
@@ -232,28 +215,10 @@ var MapModule = React.createClass({
 		var mapParams = this.state.mapParams;
 		var component;
 
-		debugger;
-
 		if (!mapParams)
 			component = <View style={styles.map}><Text>Still Loading</Text></View>
 		else
 			component =
-					// <MapBox
-					// 	refs="map"
-					// 	style={styles.map}
-		   //      direction={10}
-		   //      rotateEnabled={true}
-		   //      showsUserLocation={true}
-		   //      accessToken={'sk.eyJ1IjoiYWxiZXJ0d2NoYW5nIiwiYSI6IjI0NDEzMzNlMWM5MmYwMWQ5Y2UxY2UwZDJiNTU2OTU3In0.I-R3iWN1YIq-DeWrS8cSPg'}
-		   //      styleURL={'asset://styles/dark-v7.json'}
-		   //      centerCoordinate={mapParams.centerPoint}
-		   //      userLocationVisible={true}
-		   //      zoomLevel={mapParams.zoomLevel}
-		   //      onRegionChange={this.onChange}
-		   //      annotations={mapParams.annotations}
-		   //      onOpenAnnotation={this._onOpenAnnotation}
-		   //      onUpdateUserLocation={this._onUpdateUserLocation} />
-
 			  <MapView
 		   		style={styles.map}
           region={mapParams.region}
@@ -261,6 +226,6 @@ var MapModule = React.createClass({
 		
 		return component;
 	}
-})
+});
 
-module.exports = MapModule;
+module.exports = MapScene;

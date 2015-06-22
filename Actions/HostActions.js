@@ -7,9 +7,7 @@ var HostActions = Reflux.createActions(
 		"setImgHostURL": {
 			children: ["done", "failed"]
 		},
-		"getDb": {
-			children: ["done", "failed"]
-		},
+		"getDb": {asyncResult: true},
 	}
 );
 

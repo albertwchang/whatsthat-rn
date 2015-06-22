@@ -4,9 +4,7 @@ var Reflux = require("reflux");
 
 var ItemActions = Reflux.createActions(
 	{
-		"getItems": {
-			children: ["done", "failed"]
-		}
+		"getItems": { asyncResult: true },
 	}
 );
 

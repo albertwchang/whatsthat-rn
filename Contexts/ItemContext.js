@@ -66,14 +66,14 @@ var ItemContext = React.createClass({
    				authors={[this.state.author]}
    				context="all"
    				dims={this.state.dims}
-   				items={[this.state.item]} />
+   				items={[this.state.item.value]} />
 			],
 		})
 	},
 
 	_changeScene: function(e) {
 		this.setState({
-			sceneIndex: e.nativeEvent.selectedSegmentedIndex,
+			sceneIndex: e.nativeEvent.selectedSegmentIndex,
 		});
 	},
 
@@ -106,7 +106,7 @@ var ItemContext = React.createClass({
 		}
 
 		var Scene = this.state.scenes[this.state.sceneIndex];
-
+		
 		return (
 			<View style={styles.container}>
 				{navBar}

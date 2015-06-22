@@ -38,7 +38,7 @@ var styles = StyleSheet.create({
 	}
 })
 
-module.exports = React.createClass({
+var MapScene = React.createClass({
 	mixins: [Reflux.connect(MapStore), Reflux.ListenerMixin],
 	getInitialState: function() {
 		return {
@@ -227,3 +227,5 @@ module.exports = React.createClass({
 		return component;
 	}
 });
+
+module.exports = MapScene;

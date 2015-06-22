@@ -186,11 +186,11 @@ module.exports = React.createClass({
 
 		return (
 			<Navigator
-				renderScene={this._renderScene.bind(this)}
+				renderScene={this._renderScene}
 				initialRoute={{
 				  navigationBar: navBar,
 				  passProps: {
-				  	openItemContext: this._openItemContext.bind(this),
+				  	openItemContext: this._openItemContext,
 				  },
 				}} />
 			)

@@ -52,14 +52,11 @@ var styles = StyleSheet.create({
 });
 
 var SummaryContext = React.createClass({
-	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore), Reflux.ListenerMixin],
+	mixins: [Reflux.connect(HostStore), Reflux.connect(ItemStore), Reflux.connect(UserStore), Reflux.ListenerMixin],
 	getInitialState: function() {
 		return {
 			dims: null,
-			itemsObtained: false,
 			authorIds: [],
-			authors: [],
-			userObtained: true,
 			listScene: true,
 		};
 	},
@@ -89,11 +86,9 @@ var SummaryContext = React.createClass({
 			***************** Finally, process all obtained data ***************
 			*******************************************************************/
 			this.setState({
-				items: items, /* LOOK INTO THIS LATER, SO IT DOESN'T ERASE OTHER ELEMENTS*/
-				itemsObtained: true,
-				authors: authors,
 				authorIds: authorIds,
 			});
+
 		}).catch((err) => {
 			console.log("Error: ", err);
 		});
@@ -118,7 +113,7 @@ var SummaryContext = React.createClass({
 			return;
   },
 
-  _openItemContext: function(id, item, author) {
+  _openItemContext: function(id, item, author, nav) {
   	var route = {
 		  component: ItemContext,
 		  passProps: {
@@ -132,7 +127,7 @@ var SummaryContext = React.createClass({
 		  }
 		};
 
-  	this.props.navigator.push(route);
+		nav.push(route);
   },
 
 	_renderScene: function(route, navigator) {
@@ -145,18 +140,19 @@ var SummaryContext = React.createClass({
 		 	});
 		}
 
-		var Scene = this.state.listScene ? ItemListScene : MapScene;
-		debugger;
+		var Scene = route.component;
+		
 		return (
 			<View style={styles.container}>
 		   	{navBar}
 		   	<View style={styles.main} onLayout={this._setDims}>
 			   	<Scene
-	   				authors={this.state.authors}
+	   				authors={_.has(this.state.users, "all") ? this.state.users["all"] : null}
 	   				context="all"
+	   				currentUser={this.state.authenticatedUser}
 	   				dims={this.state.dims}
 	   				ds={new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid})}
-	   				items={this.state.items["all"]}
+	   				items={_.has(this.state.items, "all") ? this.state.items["all"] : null}
 	   				openItemContext={this._openItemContext}
 	   				navigator={navigator}
 	   				route={route} />
@@ -172,10 +168,12 @@ var SummaryContext = React.createClass({
 	},
 
 	render: function() {
-		var prevNavItem = <NavItem
-										type="text"
-										name="Map"
-										changeScene={this._changeScene} />;
+		var prevNavItem =
+			<NavItem
+				type="text"
+				name="Map"
+				changeScene={this._changeScene} />;
+		
 		var navBar =
 			<NavBar
 				title="All Items"
@@ -184,11 +182,14 @@ var SummaryContext = React.createClass({
 				titleColor="#FFFFFF"
 				customPrev={prevNavItem} />
 
+		var Scene = this.state.listScene ? ItemListScene : MapScene;
+
 		return (
 			<Navigator
 				renderScene={this._renderScene}
 				initialRoute={{
 				  navigationBar: navBar,
+				  component: Scene,
 				  passProps: {
 				  	openItemContext: this._openItemContext,
 				  },

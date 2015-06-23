@@ -48,12 +48,15 @@ var UserStore = Reflux.createStore({
 			
 			dbRef.once("value", (data) => {
 				UserActions.getUsers.completed(this.users[type] = data.val());
+				this.trigger({users: this.users});
 			}, (err) => {
 				reject(err);
 			});
 
 			// Listen to changes for any USER
-			dbRef.on("child_changed", (data, key) => {
+			dbRef.on("child_changed", (data) => {
+				var key = data.key();
+
 				if ( _.has(this.users[type], key) ) {
 					this.users[type][key] = data.val();
 					this.trigger({users: this.users});
@@ -100,10 +103,9 @@ var UserStore = Reflux.createStore({
 	},
 
 	onLogoutUser: function() {
-		this.trigger({authenticatedUser: null});
 		this.db.unauth();
-		this.authenticatedUser = null;
 		UserActions.logoutUser.completed();
+		this.trigger({authenticatedUser: this.authenticatedUser = null});
 	},
 
 	_extractUid: function(uid) {

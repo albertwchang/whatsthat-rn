@@ -47,8 +47,8 @@ var App = React.createClass({
   mixins: [Reflux.connect(HostStore), Reflux.connect(UserStore), Reflux.ListenerMixin],
   getInitialState: function() {
     return {
-      contextLoaded: false,
-    };
+      isLoggedIn: false,
+    }
   },
 
   componentWillMount: function() {
@@ -59,7 +59,7 @@ var App = React.createClass({
       UserActions.fillAuthenticatedUser.triggerPromise(authData.uid).then((user) => {
         this.setState({
           authenticatedUser: user,
-          contextLoaded: true,
+          isLoggedIn: true,
         });
       }).catch((err) => {
         /*
@@ -67,31 +67,25 @@ var App = React.createClass({
         Look at using AsyncStorage for user
         */
       })
-    } else {
-      this.setState({
-        authenticatedUser: "",
-        contextLoaded: true,
-      });
     }
   },
 
   _setContext: function(status) {
+    // debugger;
     this.setState({
-      contextLoaded: status
+      isLoggedIn: status,
     });
   },
 
   render: function() {
-    var context;
+    var Context;
 
-    if (!this.state.contextLoaded)
-      context = <View><Text>Loading</Text></View>;
-    else if ( _.has(this.state.authenticatedUser, "value") && this.state.contextLoaded)
-      context = <AppContext setContext={this._setContext} />;
+    if ( this.state.isLoggedIn )
+      Context = AppContext;
     else
-      context = <AuthContext setContext={this._setContext} />;
-    
-    return (context);
+      Context = AuthContext;
+
+    return (<Context setContext={this._setContext} />);
   },
 });
 

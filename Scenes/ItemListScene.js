@@ -79,45 +79,25 @@ var styles = StyleSheet.create({
 });
 
 var ItemListScene = React.createClass({
-	mixins: [TimerMixin, Reflux.connect(HostStore), Reflux.connect(UserStore)],
+	mixins: [TimerMixin, Reflux.connect(HostStore)],
 	getInitialState: function() {
 		return {
-			authors: null,
-			context: null,
-			ds: null,
-			isLoading: true,
-			items: null,
+			context: this.props.context,
+			ds: this.props.ds,
+			isLoading: (!this.props.authors || !this.props.users),
 			itemDims: null,
 		}
 	},
 
-	componentWillMount: function() {
-		this.setState({
-			context: this.props.context,
-			ds: this.props.ds,
-			isLoading: (this.props.items == null) ? true : false,
-		});
-	},
-
 	componentWillReceiveProps: function(nextProps) {
-		var loadingStatus;
-
-		if (nextProps.items == null)
-			loadingStatus = true
-		else {
-			loadingStatus = false;
-		}
-
 		this.setState({
-			authors: nextProps.authors,
-			items: nextProps.items,
-			isLoading: loadingStatus,
+			isLoading: (!nextProps.items || !nextProps.authors) ? true : false,
 		});
 	},
 
-	shouldComponentUpdate: function(nextProps, nextState) {
-		return (!nextState.items || !nextState.items[this.state.context]);
-	},
+	// shouldComponentUpdate: function(nextProps, nextState) {
+	// 	return (!nextState.items || !nextState.items[this.state.context]);
+	// },
 
 	_setDims:function(e) {
 		if ( !this.state.itemDims ) {
@@ -134,7 +114,7 @@ var ItemListScene = React.createClass({
 	},
 
 	_rowPressed: function(id, item, author) {
-		this.props.openItemContext(id, item, author);
+		this.props.openItemContext(id, item, author, this.props.navigator);
 	},
 
 	_renderRow: function(item, sectionId, rowId) {
@@ -160,7 +140,7 @@ var ItemListScene = React.createClass({
 								}}
 								key={rowId}
 					   		dims={this.state.itemDims}
-					   		currentUser={this.state.authenticatedUser}
+					   		currentUser={this.props.currentUser}
 						  	item={{
 						  		id: rowId,
 						  		value: item,
@@ -184,7 +164,6 @@ var ItemListScene = React.createClass({
 					dataSource={this.state.ds.cloneWithRows(this.props.items)}
 					style={styles.container}
 					renderRow={this._renderRow} />
-
 		return (view);
 	},
 });

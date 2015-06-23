@@ -86,7 +86,7 @@ var ProfileContext = React.createClass({
 		   	<Scene
 		   		dims={this.state.dims}
    				navigator={navigator}
-   				setContext={this.props.setContext}
+   				{...this.props}
    				route={route} />
 		  </View>
 		);

@@ -51,7 +51,7 @@ var UserMenuScene = React.createClass({
 
 	_logout: function() {
 		UserActions.logoutUser.triggerPromise().then(() => {
-			this.props.setContext(true);	
+			this.props.setContext(false);	
 		});
 	},
 
@@ -59,11 +59,11 @@ var UserMenuScene = React.createClass({
 		return (
 			<ScrollView
         scrollEventThrottle={200}>
-			   		<TouchableHighlight
-							underlayColor="#FF0000"
-							onPress={this._logout}>
-				   		<Text>Log Out</Text>
-				   	</TouchableHighlight>
+	   		<TouchableHighlight
+					underlayColor="#FF0000"
+					onPress={this._logout}>
+		   		<Text>Log Out</Text>
+		   	</TouchableHighlight>
 			</ScrollView>
 		);
 	},

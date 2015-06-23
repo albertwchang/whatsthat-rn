@@ -107,7 +107,6 @@ var SummaryContext = React.createClass({
 	_setDims: function(e) {
 		if (this.state.dims == null) {
 			var layout = e.nativeEvent.layout; 
-			
 			this.setState({
 				dims: {
 					height: layout.height,

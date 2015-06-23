@@ -18,6 +18,7 @@ var UserStore = require("../Stores/UserStore");
 var UserActions = require("../Actions/UserActions");
 
 var {
+  Component,
   Navigator,
 	StyleSheet,
 	Text,
@@ -31,24 +32,20 @@ var styles = StyleSheet.create({
   },
 });
 
-var AuthContext = React.createClass({
-	mixins: [Reflux.connect(HostStore), Reflux.ListenerMixin],
-  getInitialState: function() {
-    return {
-      preferredScene: "login",
-    };
-  },
-
-  componentWillMount: function() {
+class Auth2Context extends Component {
+  componentWillMount() {
     // validate whether user is authenticated w/ Firebase
     var authData = this.state.db.getAuth();
+    this.mixins = [Reflux.connect(HostStore), Reflux.ListenerMixin];
+    this.state = {
+      preferredScene: "login"
+    }
 
     if (authData) {
       var route = {
         component: AppContext,
       };
 
-      debugger;
       this.props.navigator.replace(route);
 
       UserActions.fillAuthenticatedUser.triggerPromise(authData.uid).catch((err) => {
@@ -58,9 +55,9 @@ var AuthContext = React.createClass({
         */
       });
     }
-  },
+  }
 
-  _renderScene: function(route, navigator) {
+  _renderScene(route, navigator) {
     var Scene = route.component;
 
     return (
@@ -68,9 +65,10 @@ var AuthContext = React.createClass({
         navigator={navigator}
         route={route} />
     );
-  },
+  }
 
-  render: function() {
+  render() {
+    debugger;
     return (
       <Navigator
         renderScene={this._renderScene}
@@ -79,6 +77,6 @@ var AuthContext = React.createClass({
         }} />
     )
   }
-});
+};
 
-module.exports = AuthContext;
+module.exports = Auth2Context;

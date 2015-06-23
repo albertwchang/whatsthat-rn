@@ -24,10 +24,10 @@ var {
 } = React;
 
 var styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "#EFEFFB",
-	},
+  container: {
+    flex: 1,
+    backgroundColor: "#000000",
+  },
 	navBar: {
 		backgroundColor: "#A4A4A4"
 	},
@@ -65,51 +65,45 @@ var AppContext = React.createClass({
 		});
 	},
 
-	_renderContext: function(route, navigator) {
-		var Context = route.component;
-		var navBar = null;
+	// _renderContext: function(route, nav) {
+	// 	var Context = route.component;
 
-		return (
-	   	<View style={styles.container}>
-		  	<Context
-		   		navigator={navigator}
-		   		route={route} />
-		  </View>
-		);
-	},
+	// 	return (
+	//    	<View style={styles.container}>
+	// 	  	<Context
+	// 	   		navigator={nav}
+	// 	   		route={route} />
+	// 	  </View>
+	// 	);
+	// },
 
-	_routeContext: function(navigator) {
-		var context = null;
+	_routeContext: function(tab) {
+		var Context = null;
 
 		switch(this.state.chosenTab) {
 			case "main":
-				context = SummaryContext;
+				Context = SummaryContext;
 				break;
 			
 			case "add":
-				context = SummaryContext;
+				Context = SummaryContext;
 				break;
 
 			case "profile":
-				context = ProfileContext;
+				Context = ProfileContext;
 				break;
 
 			case "settings":
-				context = SummaryContext;
+				Context = SummaryContext;
 				break;
 
 			default:
-				context = SummaryContext;
+				Context = SummaryContext;
 				break;
 		}
 
-		return (
-			<Navigator
-				renderScene={this._renderContext}
-				initialRoute={{
-				  component: context,
-				}} />
-		);
+		debugger;
+		return <Context />;
 	},
 
 	render: function() {

@@ -6,6 +6,7 @@ var Icons = require("react-native-vector-icons");
 var Reflux = require("reflux");
 
 // COMPONENTS
+var AuthContext = require("../Contexts/Auth2Context");
 
 // ACTIONS && STORES
 var HostActions = require("../Actions/HostActions");
@@ -22,11 +23,18 @@ var {
 	Image,
  	ListView,
  	Navigator,
+ 	ScrollView,
 	StyleSheet,
 	TouchableHighlight,
 	Text,
 	View,
 } = React;
+
+var styles = StyleSheet.create({
+	word: {
+		color: "red",
+	}
+})
 
 var UserMenuScene = React.createClass({
 	mixins: [Reflux.connect(HostStore), Reflux.connect(UserStore)],
@@ -36,11 +44,27 @@ var UserMenuScene = React.createClass({
 		}
 	},
 
+	_logout: function() {
+		UserActions.logoutUser.triggerPromise().then(() => {
+			// add navigator.replace...
+			var route = {
+				component: AuthContext,
+			};
+
+			this.props.navigator.parentNavigator.replace(route);
+		});
+	},
+
 	render: function() {
 		return (
-			<View style={{borderWidth: 1, borderColor: "red"}}>
-				<Text>Profile testing...</Text>
-			</View>
+			<ScrollView
+        scrollEventThrottle={200}>
+		   		<TouchableHighlight
+						underlayColor="#FF0000"
+						onPress={this._logout}>
+			   		<Text style={styles.word}>Log Out</Text>
+			   	</TouchableHighlight>
+			</ScrollView>
 		);
 	},
 });

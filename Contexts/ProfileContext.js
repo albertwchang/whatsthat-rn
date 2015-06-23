@@ -94,7 +94,6 @@ var ProfileContext = React.createClass({
 	},
 
 	render: function() {
-		debugger;
 		return (
 			<Navigator
 				renderScene={this._renderScene}
@@ -104,7 +103,7 @@ var ProfileContext = React.createClass({
 				  	openItemContext: this._openItemContext,
 				  },
 				}} />
-			)
+		)
 	}
 })
 

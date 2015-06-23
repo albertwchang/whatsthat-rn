@@ -4,6 +4,7 @@ var Reflux = require("reflux");
 var UserActions = Reflux.createActions({
 	"fillAuthenticatedUser": {asyncResult: true},
 	"getUsers": {asyncResult: true},
+	"logoutUser": {asyncResult: true},
 });
 
 UserActions.fillAuthenticatedUser.shouldEmit = (value) => {
@@ -11,6 +12,10 @@ UserActions.fillAuthenticatedUser.shouldEmit = (value) => {
 }
 
 UserActions.getUsers.shouldEmit = (value) => {
+	return true;
+}
+
+UserActions.logoutUser.shouldEmit = (value) => {
 	return true;
 }
 

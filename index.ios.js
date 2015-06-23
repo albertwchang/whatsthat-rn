@@ -75,15 +75,21 @@ var App = React.createClass({
     }
   },
 
+  _setContext: function(status) {
+    this.setState({
+      contextLoaded: status
+    });
+  },
+
   render: function() {
     var context;
 
-    if (this.state.authenticatedUser == null)
+    if (!this.state.contextLoaded)
       context = <View><Text>Loading</Text></View>;
-    else if ( _.has(this.state.authenticatedUser, "value") )
-      context = <AppContext />;
+    else if ( _.has(this.state.authenticatedUser, "value") && this.state.contextLoaded)
+      context = <AppContext setContext={this._setContext} />;
     else
-      context = <AuthContext />;
+      context = <AuthContext setContext={this._setContext} />;
     
     return (context);
   },

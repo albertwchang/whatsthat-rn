@@ -146,7 +146,7 @@ var SummaryContext = React.createClass({
 		}
 
 		var Scene = this.state.listScene ? ItemListScene : MapScene;
-
+		debugger;
 		return (
 			<View style={styles.container}>
 		   	{navBar}

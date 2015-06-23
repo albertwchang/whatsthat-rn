@@ -88,6 +88,7 @@ var UserStore = Reflux.createStore({
 						value: value,
 					}
 
+					this.trigger({authenticatedUser: this.authenticatedUser});
 					UserActions.fillAuthenticatedUser.completed(this.authenticatedUser);
 				});
 			}, (err) => {
@@ -96,6 +97,13 @@ var UserStore = Reflux.createStore({
 			
 			return dbRef;
 		});
+	},
+
+	onLogoutUser: function() {
+		this.trigger({authenticatedUser: null});
+		this.db.unauth();
+		this.authenticatedUser = null;
+		UserActions.logoutUser.completed();
 	},
 
 	_extractUid: function(uid) {

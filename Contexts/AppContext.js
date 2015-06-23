@@ -72,6 +72,7 @@ var AppContext = React.createClass({
 		return (
 	   	<View style={styles.container}>
 		  	<Context
+		  		setContext={this.props.setContext}
 		   		navigator={navigator}
 		   		route={route} />
 		  </View>

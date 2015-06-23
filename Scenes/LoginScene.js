@@ -7,6 +7,7 @@ var AppContext = require("../Contexts/AppContext");
 
 // ACTIONS && HOSTS
 var HostStore = require("../Stores/HostStore");
+var UserActions = require("../Actions/UserActions");
 
 var {
 	StyleSheet,
@@ -53,17 +54,17 @@ var LoginComp = React.createClass({
 	},
 
 	_processLogin: function(event) {
+		this.props.setContext(false);
 		this.state.db.authWithPassword(this.state.creds, (err, authData) => {
 			if (authData) {
-				var route = {
-					component: AppContext,
-				};
-				
-				this.setState({
-					isLoggedIn: true
-				});
-
-				this.props.navigator.replace(route);
+				UserActions.fillAuthenticatedUser.triggerPromise(authData.uid).then((user) => {
+					this.props.setContext(true);
+	      }).catch((err) => {
+	        /*
+	        err doesn't necessarily mean user wasn't logged in.
+	        Look at using AsyncStorage for user
+	        */
+	      });
 			} else {
 				console.log("Error logging in...");
 			}

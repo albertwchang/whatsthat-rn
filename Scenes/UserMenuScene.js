@@ -5,7 +5,8 @@ var React = require('react-native');
 var Icons = require("react-native-vector-icons");
 var Reflux = require("reflux");
 
-// COMPONENTS
+// SCENES
+var Votes = require("../Comps/Votes");
 
 // ACTIONS && STORES
 var HostActions = require("../Actions/HostActions");
@@ -22,11 +23,23 @@ var {
 	Image,
  	ListView,
  	Navigator,
+ 	ScrollView,
 	StyleSheet,
 	TouchableHighlight,
 	Text,
 	View,
 } = React;
+
+var styles = StyleSheet.create({
+	main: {
+		flex: 1,
+		borderWidth: 1,
+		borderColor: "red",
+		height: 200,
+		justifyContent: "center",
+		alignItems: "center",
+	}
+})
 
 var UserMenuScene = React.createClass({
 	mixins: [Reflux.connect(HostStore), Reflux.connect(UserStore)],
@@ -36,11 +49,22 @@ var UserMenuScene = React.createClass({
 		}
 	},
 
+	_logout: function() {
+		UserActions.logoutUser.triggerPromise().then(() => {
+			this.props.setContext(false);	
+		});
+	},
+
 	render: function() {
 		return (
-			<View style={{borderWidth: 1, borderColor: "red"}}>
-				<Text>Profile testing...</Text>
-			</View>
+			<ScrollView
+        scrollEventThrottle={200}>
+	   		<TouchableHighlight
+					underlayColor="#FF0000"
+					onPress={this._logout}>
+		   		<Text>Log Out</Text>
+		   	</TouchableHighlight>
+			</ScrollView>
 		);
 	},
 });

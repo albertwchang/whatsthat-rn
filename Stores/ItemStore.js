@@ -45,6 +45,7 @@ var ItemStore = Reflux.createStore({
 			var dbRef = this.db.child(query);
 			dbRef.once("value", (data) => {
 				ItemActions.getItems.completed( this.items[type] = data.val() );
+				this.trigger({items: this.items});
 			}, (err) => {
 				ItemActions.getItems.failed(err);
 			});

@@ -82,19 +82,17 @@ var ProfileContext = React.createClass({
 		var Scene = route.component;
 
 		return (
-			<View style={styles.container}>
-		   	<View style={styles.main} onLayout={this._setDims}>
-			   	<Scene
-			   		dims={this.state.dims}
-	   				navigator={navigator}
-	   				route={route} />
-			  </View>
-			</View>
+	   	<View style={styles.main} onLayout={this._setDims}>
+		   	<Scene
+		   		dims={this.state.dims}
+   				navigator={navigator}
+   				{...this.props}
+   				route={route} />
+		  </View>
 		);
 	},
 
 	render: function() {
-		debugger;
 		return (
 			<Navigator
 				renderScene={this._renderScene}

@@ -45,6 +45,7 @@ var AuthContext = React.createClass({
 
     return (
       <Scene
+        {...this.props}
         navigator={navigator}
         route={route} />
     );

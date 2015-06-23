@@ -39,7 +39,7 @@ var styles = StyleSheet.create({
 var AppContext = React.createClass({
 	getInitialState: function() {
 		return {
-			chosenTab: "main",
+			chosenTab: "items",
 			badges: {
 				"main": {
 					newCnt: 0,
@@ -49,10 +49,6 @@ var AppContext = React.createClass({
 				}
 			},
 		}
-	},
-
-	componentWillMount: function() {
-
 	},
 
 	_updateBadgeCount: function(tab, cnt) {
@@ -65,51 +61,32 @@ var AppContext = React.createClass({
 		});
 	},
 
-	_renderContext: function(route, navigator) {
-		var Context = route.component;
-		var navBar = null;
-
-		return (
-	   	<View style={styles.container}>
-		  	<Context
-		   		navigator={navigator}
-		   		route={route} />
-		  </View>
-		);
-	},
-
 	_routeContext: function(navigator) {
-		var context = null;
+		var Context = null;
 
 		switch(this.state.chosenTab) {
-			case "main":
-				context = SummaryContext;
+			case "items":
+				Context = SummaryContext;
 				break;
 			
 			case "add":
-				context = SummaryContext;
+				Context = SummaryContext;
 				break;
 
 			case "profile":
-				context = ProfileContext;
+				Context = ProfileContext;
 				break;
 
 			case "settings":
-				context = SummaryContext;
+				Context = SummaryContext;
 				break;
 
 			default:
-				context = SummaryContext;
+				Context = SummaryContext;
 				break;
 		}
 
-		return (
-			<Navigator
-				renderScene={this._renderContext}
-				initialRoute={{
-				  component: context,
-				}} />
-		);
+		return (<Context {...this.props} />);
 	},
 
 	render: function() {
@@ -125,9 +102,9 @@ var AppContext = React.createClass({
 					    chosenTab: 'items',
 					  });
 					}}
-					selected={this.state.chosenTab === 'main'}
+					selected={this.state.chosenTab === 'items'}
 					title="Items">
-						{this.state.chosenTab == "main" ? this._routeContext("main") : ""}
+						{this.state.chosenTab == "items" ? this._routeContext("items") : ""}
         </TabBarIOS.Item>
         
         <TabBarIOS.Item

@@ -36,6 +36,7 @@ var styles = StyleSheet.create({
 	},
 	main: {
 		flex: 1,
+		backgroundColor: "#000000"
 	},
 	navBar: {
 		backgroundColor: "#A4A4A4"
@@ -50,6 +51,7 @@ var ProfileContext = React.createClass({
 	getInitialState: function() {
 		return {
 			dims: null,
+			ds: new ListView.DataSource({rowHasChanged: (r1, r2) => r1.guid !== r2.guid}),
 		};
 	},
 	
@@ -85,9 +87,10 @@ var ProfileContext = React.createClass({
 	   	<View style={styles.main} onLayout={this._setDims}>
 		   	<Scene
 		   		dims={this.state.dims}
+		   		ds={this.state.ds}
    				navigator={navigator}
-   				{...this.props}
-   				route={route} />
+   				route={route}
+   				{...this.props} />
 		  </View>
 		);
 	},
@@ -102,7 +105,7 @@ var ProfileContext = React.createClass({
 				  	openItemContext: this._openItemContext,
 				  },
 				}} />
-			)
+		)
 	}
 })
 

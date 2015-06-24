@@ -29,8 +29,6 @@ var styles = StyleSheet.create({
 		justifyContent: 'center',
 		paddingRight: 25,
 		paddingLeft: 25,
-		borderWidth: 1,
-		borderColor: "red",
     backgroundColor: "#000000",
 	},
 	input: {

@@ -30,7 +30,6 @@ var styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#000000',
   },
   welcome: {
@@ -71,7 +70,6 @@ var App = React.createClass({
   },
 
   _setContext: function(status) {
-    // debugger;
     this.setState({
       isLoggedIn: status,
     });
